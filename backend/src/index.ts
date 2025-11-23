@@ -1,7 +1,11 @@
 import express from "express";
 import cors from "cors";
 import { adminMiddleware, authmiddleware } from "./middleware";
-import { userRouter } from "./routes/userRoutes";
+import { userRouter } from "./routes/userRouter";
+import { warehouseRouter } from "./routes/warehouseRouter";
+import { lotRouter } from "./routes/lotRouter";
+import { orderRouter } from "./routes/orderRouter";
+import { searchRouter } from "./routes/searchRouter";
 
 const app = express();
 
@@ -13,6 +17,10 @@ app.get("/health", (req, res) => {
 });
 app.use(authmiddleware);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/warehouse", warehouseRouter);
+app.use("/api/v1/lot", lotRouter);
+app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/search", searchRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

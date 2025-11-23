@@ -24,7 +24,7 @@ model User {
   warehouseid          String?
   warehouse            Warehouse? @relation(fields: [warehouseid], references: [id])
   assginedOrders       Order[]    @relation("EmployeeOrders")
-  createdOrders        Order[]
+  createdOrders        Order[]    @relation("CreatedOrders")
   managedOrders        Order[]    @relation("ManagerOrders")
   acknowledgedOrders   Order[]    @relation("AcknowledgeOrder")
   completedOrders      Order[]    @relation("CompleteOrder")
@@ -51,8 +51,8 @@ model Lot {
   quantity       Int
   quantityOnHold Int
   size           PotatoSizes
-  storageDate    DateTime
-  expiryDate     DateTime
+  storageDate    DateTime?
+  expiryDate     DateTime?
   warehouseId    String?
   warehouse      Warehouse?  @relation(fields: [warehouseId], references: [id])
   orders         Order[]
@@ -61,33 +61,34 @@ model Lot {
 
 model Variety {
   id   String @id @default(uuid())
-  name String
+  name String @unique
   lots Lot[]
 }
 
 model Order {
-  id                String    @id @default(uuid())
+  id                String      @id @default(uuid())
   destination       String?
   lotId             String
-  lot               Lot       @relation(fields: [lotId], references: [id])
+  lot               Lot         @relation(fields: [lotId], references: [id])
   quantity          Int
   warehouseId       String
-  warehouse         Warehouse @relation(fields: [warehouseId], references: [id])
+  warehouse         Warehouse   @relation(fields: [warehouseId], references: [id])
   createdById       String
-  createdBy         User      @relation(fields: [createdById], references: [id])
-  assignedManager   User[]    @relation("ManagerOrders")
-  assignedEmployees User[]    @relation("EmployeeOrders")
-  createdAt         DateTime  @default(now())
+  createdBy         User        @relation(fields: [createdById], references: [id], name: "CreatedOrders")
+  assignedManager   User[]      @relation("ManagerOrders")
+  assignedEmployees User[]      @relation("EmployeeOrders")
+  createdAt         DateTime    @default(now())
   updatedAt         DateTime?
   completedAt       DateTime?
   isComplete        Boolean
   completedById     String?
-  completedBy       User?     @relation(fields: [completedById], references: [id], name: "CompleteOrder")
+  completedBy       User?       @relation(fields: [completedById], references: [id], name: "CompleteOrder")
   isAcknowledged    Boolean
   acknowledgedById  String?
-  acknowledgedBy    User?     @relation(fields: [acknowledgedById], references: [id], name: "AcknowledgeOrder")
+  acknowledgedBy    User?       @relation(fields: [acknowledgedById], references: [id], name: "AcknowledgeOrder")
   acknowledgedAt    DateTime?
   remarks           String?
+  status            OrderStatus @default(placed)
 }
 
 enum UserRoles {
@@ -105,4 +106,10 @@ enum PotatoSizes {
   Soot8
   Soot4to6
   Soot4to8
+}
+
+enum OrderStatus {
+  placed
+  acknowledged
+  completed
 }

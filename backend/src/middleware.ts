@@ -56,7 +56,29 @@ export async function managerMiddleware(
   try {
     const isManager = await prisma.user.findFirst({
       where: {
-        role: { in: ["Manager", "ReadOnlyManager"] },
+        role: { in: ["Manager", "Administrator"] },
+        id: req.userId,
+      },
+    });
+    if (!isManager) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    next();
+  } catch (error) {
+    console.log(error);
+    return res.status(403).json({ message: "Forbidden" });
+  }
+}
+
+export async function readOnlyMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const isManager = await prisma.user.findFirst({
+      where: {
+        role: { in: ["Manager", "ReadOnlyManager", "Administrator"] },
         id: req.userId,
       },
     });
