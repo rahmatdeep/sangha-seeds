@@ -6,8 +6,8 @@ import {
   readOnlyMiddleware,
 } from "../middleware";
 import { prisma } from "../lib/prisma";
-import z from "zod";
 import { UserCreateSchema, UserUpdateSchema } from "../lib/types";
+import bcrypt from "bcrypt";
 
 const router = Router();
 
@@ -41,8 +41,15 @@ DELETE /api/users/:id
 */
 
 router.get("/", readOnlyMiddleware, async (req: Request, res: Response) => {
-  const { role, warehouseId, search, page = "1", limit = "10", sortBy, order } =
-    req.query;
+  const {
+    role,
+    warehouseId,
+    search,
+    page = "1",
+    limit = "10",
+    sortBy,
+    order,
+  } = req.query;
 
   const pageNumber = parseInt(page as string, 10);
   const limitNumber = parseInt(limit as string, 10);
@@ -87,9 +94,14 @@ router.post("/create", adminMiddleware, async (req: Request, res: Response) => {
   if (!parsed.success) {
     return res.status(400).json({ message: "Invalid request data" });
   }
+  const { password, ...rest } = parsed.data;
+  const hashedPassword = await bcrypt.hash(password, 10);
   try {
     const user = await prisma.user.create({
-      data: parsed.data,
+      data: {
+        ...rest,
+        password: hashedPassword,
+      },
     });
     return res.status(201).json({ message: user.id });
   } catch (error) {

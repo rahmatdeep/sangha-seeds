@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { prisma } from "./lib/prisma";
 import jwt from "jsonwebtoken";
+import "dotenv/config";
 
 export function authmiddleware(
   req: Request,

@@ -7,6 +7,7 @@ import { lotRouter } from "./routes/lotRouter";
 import { orderRouter } from "./routes/orderRouter";
 import { searchRouter } from "./routes/searchRouter";
 import { varietyRouter } from "./routes/varietyRouter";
+import { authRouter } from "./routes/authRouter";
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use("/api/v1/lot", lotRouter);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/search", searchRouter);
 app.use("/api/v1/variety", varietyRouter);
+app.use("/api/v1/auth", authRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
