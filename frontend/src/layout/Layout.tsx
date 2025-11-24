@@ -2,8 +2,9 @@ import { theme } from "../theme";
 import Header from "./Header";
 import Navbar from "./Navbar";
 import { useState } from "react";
+import { Outlet } from "react-router-dom";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout() {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
 
   return (
@@ -22,7 +23,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             marginTop: theme.headerHeight,
           }}
         >
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
