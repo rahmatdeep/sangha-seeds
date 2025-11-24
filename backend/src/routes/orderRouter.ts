@@ -177,7 +177,14 @@ router.get("/", readOnlyMiddleware, async (req: Request, res: Response) => {
 
 router.get("/my-orders", async (req: Request, res: Response) => {
   const userId = req.userId;
-  const { type, status, page = 1, limit = 10 } = req.query;
+  const {
+    type,
+    status,
+    page = 1,
+    limit = 10,
+    createdFrom,
+    createdTo,
+  } = req.query;
   try {
     let whereClause: any = {};
     if (type === "created") {
@@ -201,6 +208,23 @@ router.get("/my-orders", async (req: Request, res: Response) => {
         return res.status(400).json({ message: "Invalid status parameter" });
       }
       whereClause.status = parsedStatus.data;
+    }
+    if (createdFrom || createdTo) {
+      whereClause.createdAt = {};
+      if (createdFrom) {
+        whereClause.createdAt.gte = new Date(createdFrom as string);
+      }
+      if (createdTo) {
+        whereClause.createdAt.lte = new Date(createdTo as string);
+      }
+    } else {
+      const now = new Date();
+      const startOfDay = new Date(now);
+      startOfDay.setHours(0, 0, 0, 0);
+      whereClause.createdAt = {
+        gte: startOfDay,
+        lte: now,
+      };
     }
     const orders = await prisma.order.findMany({
       where: whereClause,
@@ -245,7 +269,8 @@ router.get(
   }
 );
 
-router.post("/create",
+router.post(
+  "/create",
   managerMiddleware,
   async (req: Request, res: Response) => {
     const parsed = OrderCreateSchema.safeParse(req.body);
@@ -285,7 +310,8 @@ router.post("/create",
   }
 );
 
-router.patch("/update/:id",
+router.patch(
+  "/update/:id",
   managerMiddleware,
   async (req: Request, res: Response) => {
     const orderId = req.params.id;
@@ -400,11 +426,9 @@ router.post("/complete/:id", async (req: Request, res: Response) => {
       });
       return completedOrder.id;
     });
-    return res
-      .status(200)
-      .json({
-        message: `Order id: ${completedOrderId} completed successfully`,
-      });
+    return res.status(200).json({
+      message: `Order id: ${completedOrderId} completed successfully`,
+    });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -482,7 +506,8 @@ router.post(
   }
 );
 
-router.delete("/delete/:id",
+router.delete(
+  "/delete/:id",
   managerMiddleware,
   async (req: Request, res: Response) => {
     const orderId = req.params.id;
@@ -495,8 +520,14 @@ router.delete("/delete/:id",
           res.status(404).json({ message: "Order not found" });
           throw new Error("Order not found");
         }
-        if(order.status === OrderStatus.completed || order.completedAt != null || order.completedById != null) {
-          res.status(400).json({ message: "Completed orders cannot be deleted" });
+        if (
+          order.status === OrderStatus.completed ||
+          order.completedAt != null ||
+          order.completedById != null
+        ) {
+          res
+            .status(400)
+            .json({ message: "Completed orders cannot be deleted" });
           throw new Error("Completed orders cannot be deleted");
         }
         const lot = await tx.lot.findUnique({
