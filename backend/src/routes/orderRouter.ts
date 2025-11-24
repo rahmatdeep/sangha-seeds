@@ -168,7 +168,7 @@ router.get("/", readOnlyMiddleware, async (req: Request, res: Response) => {
         [sortBy]: order,
       },
     });
-    return res.status(200).json(orders);
+    return res.status(200).json({orders});
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -231,7 +231,7 @@ router.get("/my-orders", async (req: Request, res: Response) => {
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
     });
-    return res.status(200).json(orders);
+    return res.status(200).json({orders});
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -566,7 +566,7 @@ router.delete(
 //   async (req: Request, res: Response) => {
 //     try {
 //       const orders = await prisma.order.findMany();
-//       return res.status(200).json(orders);
+//       return res.status(200).json({orders});
 //     } catch (error) {
 //       return res.status(500).json({ message: "Internal server error" });
 //     }
@@ -585,7 +585,7 @@ router.delete(
 //       if (!order) {
 //         return res.status(404).json({ message: "Order not found" });
 //       }
-//       return res.status(200).json(order);
+//       return res.status(200).json({order});
 //     } catch (error) {
 //       return res.status(500).json({ message: "Internal server error" });
 //     }
@@ -613,7 +613,7 @@ router.delete(
 //           },
 //         },
 //       });
-//       return res.status(200).json(orders);
+//       return res.status(200).json({orders});
 //     } catch (error) {
 //       return res.status(500).json({ message: "Internal server error" });
 //     }
@@ -631,7 +631,7 @@ router.delete(
 //           createdById: userId,
 //         },
 //       });
-//       return res.status(200).json(orders);
+//       return res.status(200).json({orders});
 //     } catch (error) {
 //       console.log(error);
 //       return res.status(500).json({ message: "Internal server error" });
@@ -650,7 +650,7 @@ router.delete(
 //           warehouseId: warehouseId,
 //         },
 //       });
-//       return res.status(200).json(orders);
+//       return res.status(200).json({orders});
 //     } catch (error) {
 //       console.log(error);
 //       return res.status(500).json({ message: "Internal server error" });
@@ -690,7 +690,7 @@ router.delete(
 //           },
 //         },
 //       });
-//       return res.status(200).json(orders);
+//       return res.status(200).json({orders});
 //     } catch (error) {
 //       console.log(error);
 //       return res.status(500).json({ message: "Internal server error" });

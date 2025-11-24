@@ -48,7 +48,7 @@ router.get("/", readOnlyMiddleware, async (req: Request, res: Response) => {
       skip,
       take: limitNumber,
     });
-    return res.status(200).json(varieties);
+    return res.status(200).json({varieties});
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -78,7 +78,7 @@ router.get("/:name",
       if (!variety) {
         return res.status(404).json({ message: "Variety not found" });
       }
-      return res.status(200).json(variety);
+      return res.status(200).json({variety});
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Internal server error" });
@@ -111,7 +111,7 @@ router.get("/variety/:id",
       if (!variety) {
         return res.status(404).json({ message: "Variety not found" });
       }
-      return res.status(200).json(variety);
+      return res.status(200).json({variety});
     } catch (error) {
       console.log(error);
       return res.status(500).json({ message: "Internal server error" });

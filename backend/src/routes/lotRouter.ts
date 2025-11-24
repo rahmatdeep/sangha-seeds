@@ -148,7 +148,7 @@ router.get("/", readOnlyMiddleware, async (req: Request, res: Response) => {
           }
         : undefined,
     });
-    return res.status(200).json(lots);
+    return res.status(200).json({lots});
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -173,7 +173,7 @@ router.get("/:id", readOnlyMiddleware, async (req: Request, res: Response) => {
     if (!lot) {
       return res.status(404).json({ message: "Lot not found" });
     }
-    return res.status(200).json(lot);
+    return res.status(200).json({lot});
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });

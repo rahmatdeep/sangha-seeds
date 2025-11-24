@@ -70,7 +70,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const warehouses = await prisma.warehouse.findMany();
-      return res.status(200).json(warehouses);
+      return res.status(200).json({warehouses});
     } catch (error) {
       return res.status(500).json({ message: "Internal server error" });
     }
