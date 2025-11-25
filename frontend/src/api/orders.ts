@@ -5,7 +5,7 @@ export async function fetchMyOrders(token: string) {
   const res = await axios.get(`${API_BASE_URL}/order/my-orders`, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  return res.data;
+  return res.data.orders;
 }
 
 export async function acknowledgeOrder(orderId: string, token: string) {

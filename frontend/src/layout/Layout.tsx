@@ -1,3 +1,4 @@
+// Layout.tsx - Updated for floating nav
 import { theme } from "../theme";
 import Header from "./Header";
 import Navbar from "./Navbar";
@@ -16,7 +17,7 @@ export default function Layout() {
       <div className="flex flex-1 overflow-hidden">
         <Navbar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
         <main
-          className="flex-1 overflow-y-auto p-4 pb-20 sm:pb-4 transition-all duration-200"
+          className="flex-1 overflow-y-auto p-4 pb-24 sm:pb-4 transition-all duration-300"
           style={{
             marginLeft:
               window.innerWidth >= 640 ? (sidebarExpanded ? 192 : 64) : 0,
