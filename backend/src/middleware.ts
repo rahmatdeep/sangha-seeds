@@ -3,6 +3,10 @@ import { prisma } from "./lib/prisma";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 
+interface AuthJwtPayload {
+  userId?: string;
+}
+
 export function authmiddleware(
   req: Request,
   res: Response,
@@ -18,8 +22,11 @@ export function authmiddleware(
   }
   const token = authHeader.split(" ")[1];
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    req.userId = decoded as string;
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as AuthJwtPayload;
+    req.userId = decoded.userId as string;
     next();
   } catch (error) {
     console.log(error);

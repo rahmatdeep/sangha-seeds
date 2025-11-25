@@ -230,6 +230,15 @@ router.get("/my-orders", async (req: Request, res: Response) => {
       where: whereClause,
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
+      include:{
+        acknowledgedBy: true,
+        completedBy: true,
+        createdBy: true,
+        assignedManager: true,
+        assignedEmployees: true,
+        lot: true,
+        warehouse: true,
+      }
     });
     return res.status(200).json({orders});
   } catch (error) {

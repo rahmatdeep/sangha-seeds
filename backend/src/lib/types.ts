@@ -426,3 +426,17 @@ export type AssignManager = z.infer<typeof AssignManagerSchema>;
 export type AssignEmployee = z.infer<typeof AssignEmployeeSchema>;
 export type AcknowledgeOrder = z.infer<typeof AcknowledgeOrderSchema>;
 export type CompleteOrder = z.infer<typeof CompleteOrderSchema>;
+
+export type MyOrdersResponseOrder = Order & {
+  acknowledgedBy?: User | null;
+  completedBy?: User | null;
+  createdBy: User;
+  assignedManager: User | null;
+  assignedEmployees: User[];
+  lot: Lot;
+  warehouse: Warehouse;
+};
+
+export type MyOrdersResponse = {
+  orders: MyOrdersResponseOrder[];
+};
