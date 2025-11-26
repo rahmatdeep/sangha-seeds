@@ -168,7 +168,7 @@ router.get("/", readOnlyMiddleware, async (req: Request, res: Response) => {
         [sortBy]: order,
       },
     });
-    return res.status(200).json({orders});
+    return res.status(200).json({ orders });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
@@ -187,9 +187,7 @@ router.get("/my-orders", async (req: Request, res: Response) => {
   } = req.query;
   try {
     let whereClause: any = {};
-    if (type === "created") {
-      whereClause.createdById = userId;
-    } else if (type === "assigned") {
+    if (type === "assigned") {
       whereClause.assignedEmployees = {
         some: { id: userId },
       };
@@ -201,6 +199,13 @@ router.get("/my-orders", async (req: Request, res: Response) => {
       whereClause.completedById = userId;
     } else if (type === "acknowledged") {
       whereClause.acknowledgedById = userId;
+    } else {
+      // DEFAULT: When no type is specified, return orders where user is involved in ANY way
+      whereClause.OR = [
+        { assignedEmployees: { some: { id: userId } } },
+        { assignedManager: { some: { id: userId } } },
+        { createdById: userId },
+      ];
     }
     if (status) {
       const parsedStatus = OrderStatusSchema.safeParse(status);
@@ -230,7 +235,7 @@ router.get("/my-orders", async (req: Request, res: Response) => {
       where: whereClause,
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
-      include:{
+      include: {
         acknowledgedBy: true,
         completedBy: true,
         createdBy: true,
@@ -238,9 +243,9 @@ router.get("/my-orders", async (req: Request, res: Response) => {
         assignedEmployees: true,
         lot: true,
         warehouse: true,
-      }
+      },
     });
-    return res.status(200).json({orders});
+    return res.status(200).json({ orders });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
