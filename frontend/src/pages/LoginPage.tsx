@@ -1,9 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../config";
 import { theme } from "../theme";
 import { FaSeedling, FaEnvelope, FaLock } from "react-icons/fa";
+import { getUser, login } from "../api";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -17,14 +17,17 @@ export default function Auth() {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.post(`${API_BASE_URL}/auth/login`, {
-        email,
-        password,
-      });
-      localStorage.setItem("token", res.data.token);
+      const token = await login(email, password);
+      localStorage.setItem("token", token);
+      const user = await getUser(token);
+      localStorage.setItem("user", JSON.stringify(user));
       navigate("/");
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Login failed");
+      }
     }
     setLoading(false);
   };
