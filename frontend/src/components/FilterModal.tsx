@@ -142,6 +142,7 @@ export default function FilterModal({
           <Calendar
             value={localFilters.createdFrom || ""}
             onChange={(val) => handleChange("createdFrom", val)}
+            max={localFilters.createdTo || undefined}
           />
         </div>
         <div className="mb-3">
@@ -154,6 +155,7 @@ export default function FilterModal({
           <Calendar
             value={localFilters.createdTo || ""}
             onChange={(val) => handleChange("createdTo", val)}
+            min={localFilters.createdFrom || undefined}
           />
         </div>
         <div className="flex gap-2 mt-4">
@@ -167,6 +169,7 @@ export default function FilterModal({
             }}
             onClick={() => {
               setLocalFilters({});
+              setShowMyOrders(false);
               setFilters({});
               onClose();
             }}

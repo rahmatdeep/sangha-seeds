@@ -11,6 +11,8 @@ interface CalendarProps {
   onChange: (value: string) => void;
   required?: boolean;
   disabled?: boolean;
+  min?: string; // Format: "YYYY-MM-DD"
+  max?: string; // Format: "YYYY-MM-DD"
 }
 
 function getDaysInMonth(year: number, month: number) {
@@ -21,10 +23,35 @@ function pad(n: number) {
   return n < 10 ? `0${n}` : `${n}`;
 }
 
+function isDateDisabled(
+  year: number,
+  month: number,
+  day: number,
+  min?: string,
+  max?: string
+): boolean {
+  const dateStr = `${year}-${pad(month + 1)}-${pad(day)}`;
+  const date = new Date(dateStr);
+  
+  if (min) {
+    const minDate = new Date(min);
+    if (date < minDate) return true;
+  }
+  
+  if (max) {
+    const maxDate = new Date(max);
+    if (date > maxDate) return true;
+  }
+  
+  return false;
+}
+
 export default function Calendar({
   value,
   onChange,
   disabled = false,
+  min,
+  max,
 }: CalendarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(value);
@@ -58,6 +85,11 @@ export default function Calendar({
   const selected = selectedDate ? new Date(selectedDate) : null;
 
   const handleSelect = (day: number) => {
+    // Check if date is disabled before selecting
+    if (isDateDisabled(viewDate.year, viewDate.month, day, min, max)) {
+      return;
+    }
+    
     const dateStr = `${viewDate.year}-${pad(viewDate.month + 1)}-${pad(day)}`;
     setSelectedDate(dateStr);
     onChange(dateStr);
@@ -197,6 +229,14 @@ export default function Calendar({
                   selected.getFullYear() === viewDate.year &&
                   selected.getMonth() === viewDate.month &&
                   selected.getDate() === day;
+                const isDisabled = isDateDisabled(
+                  viewDate.year,
+                  viewDate.month,
+                  day,
+                  min,
+                  max
+                );
+                
                 return (
                   <button
                     key={day}
@@ -208,31 +248,36 @@ export default function Calendar({
                         : isToday
                         ? theme.colors.accent + "40"
                         : "transparent",
-                      color: isSelected
+                      color: isDisabled
+                        ? theme.colors.primary + "30"
+                        : isSelected
                         ? theme.colors.surface
                         : theme.colors.primary,
-                      border: isToday
+                      border: isToday && !isDisabled
                         ? `1px solid ${theme.colors.accent}`
                         : "none",
                       fontWeight: isSelected ? 700 : 500,
                       minWidth: "32px",
                       minHeight: "32px",
+                      cursor: isDisabled ? "not-allowed" : "pointer",
+                      opacity: isDisabled ? 0.4 : 1,
                     }}
                     onClick={() => handleSelect(day)}
                     onMouseEnter={(e) => {
-                      if (!isSelected) {
+                      if (!isSelected && !isDisabled) {
                         (
                           e.currentTarget as HTMLButtonElement
                         ).style.background = theme.colors.accent + "20";
                       }
                     }}
                     onMouseLeave={(e) => {
-                      if (!isSelected) {
+                      if (!isSelected && !isDisabled) {
                         (
                           e.currentTarget as HTMLButtonElement
                         ).style.background = "transparent";
                       }
                     }}
+                    disabled={isDisabled}
                   >
                     {day}
                   </button>
