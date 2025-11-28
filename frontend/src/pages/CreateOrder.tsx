@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { theme } from "../theme";
 import axios from "axios";
-import { API_BASE_URL } from "../config";
 import { assignEmployee, assignManager, createOrder } from "../api";
 import type { Lot, Warehouse, User } from "../types";
 import Input from "../components/ui/Input";
@@ -33,10 +32,11 @@ export default function CreateOrder() {
     if (role !== "Administrator") navigate("/orders");
   }, [role, navigate]);
 
-  const [lots, setLots] = useState<Lot[]>([]);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [employees, setEmployees] = useState<User[]>([]);
-  const [managers, setManagers] = useState<User[]>([]);
+  const location = useLocation();
+  const lots = location.state?.lots || [];
+  const warehouses = location.state?.warehouses || [];
+  const employees = location.state?.employees || [];
+  const managers = location.state?.managers || [];
   const [lotId, setLotId] = useState("");
   const [warehouseId, setWarehouseId] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -45,40 +45,8 @@ export default function CreateOrder() {
   const [assignedEmployees, setAssignedEmployees] = useState<string[]>([]);
   const [assignedManager, setAssignedManager] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  //   const [error, setError] = useState("");
-  //   const [success, setSuccess] = useState("");
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-
-  // Fetch lots, warehouses, employees, managers
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const lotsRes = await axios.get(`${API_BASE_URL}/lot`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setLots(lotsRes.data.lots || lotsRes.data);
-
-        const whRes = await axios.get(`${API_BASE_URL}/warehouse/warehouses`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setWarehouses(whRes.data.warehouses || whRes.data);
-
-        const empRes = await axios.get(`${API_BASE_URL}/user?role=Employee`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setEmployees(empRes.data.users || empRes.data);
-
-        const mgrRes = await axios.get(`${API_BASE_URL}/user?role=Manager`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setManagers(mgrRes.data.users || mgrRes.data);
-      } catch {
-        showError("Failed to load form data.");
-      }
-    }
-    fetchData();
-  }, [token]);
 
   // Validation function
   const validateForm = (): boolean => {
@@ -196,7 +164,7 @@ export default function CreateOrder() {
               setFormErrors(errors);
             }
           }}
-          options={lots.map((lot) => ({
+          options={lots.map((lot: Lot) => ({
             value: lot.id,
             label: lot.lotNo,
           }))}
@@ -211,14 +179,13 @@ export default function CreateOrder() {
           onChange={(val) => {
             setWarehouseId(val);
             setTouched((prev) => ({ ...prev, warehouseId: true }));
-            // Clear error immediately when valid
             if (val) {
               const errors = { ...formErrors };
               delete errors.warehouseId;
               setFormErrors(errors);
             }
           }}
-          options={warehouses.map((wh) => ({
+          options={warehouses.map((wh: Warehouse) => ({
             value: wh.id,
             label: wh.name,
           }))}
@@ -234,7 +201,6 @@ export default function CreateOrder() {
           onChange={(e) => {
             setQuantity(e.target.value);
             setTouched((prev) => ({ ...prev, quantity: true }));
-            // Clear error immediately when valid
             if (e.target.value && Number(e.target.value) >= 1) {
               const errors = { ...formErrors };
               delete errors.quantity;
@@ -254,7 +220,7 @@ export default function CreateOrder() {
 
         <MultiSelectDropdown
           label="Assign Employees"
-          options={employees.map((emp) => ({
+          options={employees.map((emp: User) => ({
             id: emp.id,
             label: `${emp.name} (${emp.email})`,
           }))}
@@ -277,7 +243,7 @@ export default function CreateOrder() {
               setFormErrors(errors);
             }
           }}
-          options={managers.map((mgr) => ({
+          options={managers.map((mgr: User) => ({
             value: mgr.id,
             label: `${mgr.name} (${mgr.email})`,
           }))}
