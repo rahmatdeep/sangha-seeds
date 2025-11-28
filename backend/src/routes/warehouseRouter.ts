@@ -64,17 +64,21 @@ router.post(
   }
 );
 
-router.get(
-  "/warehouses",
-  authmiddleware,
-  async (req: Request, res: Response) => {
-    try {
-      const warehouses = await prisma.warehouse.findMany();
-      return res.status(200).json({warehouses});
-    } catch (error) {
-      return res.status(500).json({ message: "Internal server error" });
-    }
+router.get("/", authmiddleware, async (req: Request, res: Response) => {
+  try {
+    const warehouses = await prisma.warehouse.findMany({
+      include: {
+        assignedEmployees: true,
+        lots: true,
+        orders: true,
+      },
+      orderBy: { name: "asc"},
+      
+    });
+    return res.status(200).json({ warehouses });
+  } catch (error) {
+    return res.status(500).json({ message: "Internal server error" });
   }
-);
+});
 
 export { router as warehouseRouter };

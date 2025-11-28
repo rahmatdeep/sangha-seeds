@@ -48,6 +48,7 @@ export const WarehouseSchema = z.object({
   location: z.string().min(1, "Location is required"),
   maxStorageCapacity: z.string().nullable().optional(),
   maxDryingCapacity: z.string().nullable().optional(),
+  assignedManagerId: z.string().uuid().nullable().optional(),
   remarks: z.string().nullable().optional(),
 });
 
@@ -247,7 +248,7 @@ export const WarehouseQuerySchema = PaginationSchema.extend({
 
 // Warehouse Detail Query Parameters
 export const WarehouseDetailQuerySchema = z.object({
-  include: z.enum(["employees", "lots", "orders", "all"]).optional(),
+  include: z.enum(["employees", "lots", "orders", "manager", "all"]).optional(),
 });
 
 // Variety Query Parameters

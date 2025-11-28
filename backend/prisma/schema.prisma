@@ -14,20 +14,21 @@ datasource db {
 }
 
 model User {
-  id                   String     @id @default(uuid())
+  id                   String      @id @default(uuid())
   name                 String
-  email                String     @unique
+  email                String      @unique
   password             String
   mobile               String
   role                 UserRoles
   areaOfResponsibility String?
   warehouseid          String?
-  warehouse            Warehouse? @relation(fields: [warehouseid], references: [id])
-  assginedOrders       Order[]    @relation("EmployeeOrders")
-  createdOrders        Order[]    @relation("CreatedOrders")
-  managedOrders        Order[]    @relation("ManagerOrders")
-  acknowledgedOrders   Order[]    @relation("AcknowledgeOrder")
-  completedOrders      Order[]    @relation("CompleteOrder")
+  warehouse            Warehouse?  @relation(fields: [warehouseid], references: [id], name: "assignedWarehouse")
+  managedWarehouses    Warehouse[] @relation("managedWarehouse")
+  assginedOrders       Order[]     @relation("EmployeeOrders")
+  createdOrders        Order[]     @relation("CreatedOrders")
+  managedOrders        Order[]     @relation("ManagerOrders")
+  acknowledgedOrders   Order[]     @relation("AcknowledgeOrder")
+  completedOrders      Order[]     @relation("CompleteOrder")
   remarks              String?
 }
 
@@ -37,7 +38,9 @@ model Warehouse {
   location           String
   maxStorageCapacity String?
   maxDryingCapacity  String?
-  assignedEmployees  User[]
+  assignedEmployees  User[]  @relation("assignedWarehouse")
+  assignedManagerId  String?
+  assignedManager    User?   @relation(fields: [assignedManagerId], references: [id], name: "managedWarehouse")
   lots               Lot[]
   orders             Order[]
   remarks            String?
