@@ -3,6 +3,7 @@ import {
   IoChevronBack,
   IoChevronForward,
   IoCalendarOutline,
+  IoClose,
 } from "react-icons/io5";
 import { theme } from "../../theme";
 
@@ -50,6 +51,7 @@ export default function Calendar({
   value,
   onChange,
   disabled = false,
+  required = false,
   min,
   max,
 }: CalendarProps) {
@@ -96,6 +98,14 @@ export default function Calendar({
     setIsOpen(false);
   };
 
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent opening calendar when clearing
+    if (!required && !disabled) {
+      setSelectedDate("");
+      onChange("");
+    }
+  };
+
   const monthNames = [
     "Jan",
     "Feb",
@@ -115,7 +125,7 @@ export default function Calendar({
     <div className="flex flex-col gap-1 relative" ref={ref}>
       <button
         type="button"
-        className="w-full px-3 py-2 text-base rounded-lg border flex items-center justify-between transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full px-3 py-2 text-base rounded-lg border flex items-center justify-between transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed group"
         style={{
           borderColor: theme.colors.accent,
           borderRadius: theme.borderRadius.lg,
@@ -128,7 +138,7 @@ export default function Calendar({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
       >
-        <span>
+        <span className="flex-1 text-left">
           {selectedDate
             ? new Date(selectedDate).toLocaleDateString("en-IN", {
                 year: "numeric",
@@ -137,9 +147,33 @@ export default function Calendar({
               })
             : "Select date"}
         </span>
-        <IoCalendarOutline
-          style={{ fontSize: "1.3em", color: theme.colors.primary }}
-        />
+        <div className="flex items-center gap-1">
+          {selectedDate && !required && !disabled && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="p-1 rounded-full transition-all opacity-0 group-hover:opacity-100"
+              style={{
+                background: theme.colors.accent + "40",
+                color: theme.colors.primary,
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  theme.colors.accent + "80";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  theme.colors.accent + "40";
+              }}
+              aria-label="Clear date"
+            >
+              <IoClose size={16} />
+            </button>
+          )}
+          <IoCalendarOutline
+            style={{ fontSize: "1.3em", color: theme.colors.primary }}
+          />
+        </div>
       </button>
       {isOpen && !disabled && (
         <div
