@@ -170,6 +170,7 @@ export default function CreateOrder() {
           }))}
           placeholder="Select Lot"
           error={touched.lotId ? formErrors.lotId : undefined}
+          searchable
         />
 
         <Dropdown
@@ -191,6 +192,7 @@ export default function CreateOrder() {
           }))}
           placeholder="Select Warehouse"
           error={touched.warehouseId ? formErrors.warehouseId : undefined}
+          searchable
         />
 
         <NumberInput
@@ -227,6 +229,7 @@ export default function CreateOrder() {
           selected={assignedEmployees}
           onChange={setAssignedEmployees}
           placeholder="Select employees (optional)"
+          searchable
         />
 
         <Dropdown
@@ -251,6 +254,7 @@ export default function CreateOrder() {
           error={
             touched.assignedManager ? formErrors.assignedManager : undefined
           }
+          searchable
         />
 
         <TextArea

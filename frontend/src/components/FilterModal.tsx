@@ -101,7 +101,7 @@ export default function FilterModal({
             className="block text-sm font-semibold mb-1"
             style={{ color: theme.colors.primary }}
           >
-            Warehouse ID
+            Warehouse
           </label>
           <Dropdown
             options={warehouses.map((wh: Warehouse) => ({
@@ -111,6 +111,7 @@ export default function FilterModal({
             value={localFilters.warehouseId || ""}
             onChange={(val) => handleChange("warehouseId", val)}
             placeholder="Select warehouse"
+            searchable
           />
         </div>
         <div className="mb-3">
@@ -128,6 +129,7 @@ export default function FilterModal({
             value={localFilters.lotId || ""}
             onChange={(val) => handleChange("lotId", val)}
             placeholder="Select lot"
+            searchable
           />
         </div>
         <div className="mb-3">

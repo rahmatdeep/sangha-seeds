@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { theme } from "../../theme";
-import { IoChevronDown } from "react-icons/io5";
+import { IoChevronDown, IoSearch } from "react-icons/io5";
 
 interface MultiSelectOption {
   id: string;
@@ -17,6 +17,7 @@ interface MultiSelectDropdownProps {
   helperText?: string;
   required?: boolean;
   disabled?: boolean;
+  searchable?: boolean;
 }
 
 export default function MultiSelectDropdown({
@@ -29,10 +30,13 @@ export default function MultiSelectDropdown({
   helperText,
   required = false,
   disabled = false,
+  searchable = false,
 }: MultiSelectDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -41,11 +45,19 @@ export default function MultiSelectDropdown({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        setSearchQuery("");
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isOpen && searchable && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [isOpen, searchable]);
 
   const toggleOption = (id: string) => {
     if (selected.includes(id)) {
@@ -63,6 +75,13 @@ export default function MultiSelectDropdown({
     }
     return `${selected.length} selected`;
   };
+
+  // Filter options based on search query
+  const filteredOptions = searchQuery
+    ? options.filter((option) =>
+        option.label.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : options;
 
   return (
     <div className="flex flex-col gap-1" ref={dropdownRef}>
@@ -114,64 +133,99 @@ export default function MultiSelectDropdown({
 
         {isOpen && !disabled && (
           <div
-            className="absolute z-50 w-full mt-1 rounded border shadow-lg max-h-60 overflow-y-auto"
+            className="absolute z-50 w-full mt-1 rounded border shadow-lg max-h-60 overflow-hidden flex flex-col"
             style={{
               background: theme.colors.surface,
               borderColor: theme.colors.accent,
               borderRadius: theme.borderRadius.md,
             }}
           >
-            {options.length === 0 ? (
+            {/* Search Input */}
+            {searchable && (
               <div
-                className="px-3 py-2 text-sm opacity-60"
-                style={{ color: theme.colors.primary }}
+                className="p-2 border-b sticky top-0"
+                style={{
+                  background: theme.colors.surface,
+                  borderColor: theme.colors.accent,
+                }}
               >
-                No options available
-              </div>
-            ) : (
-              options.map((option) => (
-                <label
-                  key={option.id}
-                  className="flex items-center gap-2 px-3 py-2 cursor-pointer transition-all duration-150"
-                  style={{
-                    backgroundColor: selected.includes(option.id)
-                      ? theme.colors.accent + "60"
-                      : "transparent",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!selected.includes(option.id)) {
-                      e.currentTarget.style.backgroundColor =
-                        theme.colors.accent + "30";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!selected.includes(option.id)) {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(option.id)}
-                    onChange={() => toggleOption(option.id)}
-                    className="w-4 h-4 rounded cursor-pointer"
-                    style={{
-                      accentColor: theme.colors.secondary,
-                    }}
+                <div className="relative">
+                  <IoSearch
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4"
+                    style={{ color: theme.colors.primary, opacity: 0.5 }}
                   />
-                  <span
-                    className="text-sm flex-1"
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full pl-8 pr-3 py-1.5 text-sm rounded border focus:outline-none focus:ring-1"
                     style={{
+                      borderColor: theme.colors.accent,
+                      background: theme.colors.background,
                       color: theme.colors.primary,
-                      fontSize: "0.875rem",
-                      lineHeight: "1.25rem",
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Options List */}
+            <div className="overflow-y-auto flex-1">
+              {filteredOptions.length === 0 ? (
+                <div
+                  className="px-3 py-2 text-sm opacity-60"
+                  style={{ color: theme.colors.primary }}
+                >
+                  {searchQuery ? "No results found" : "No options available"}
+                </div>
+              ) : (
+                filteredOptions.map((option) => (
+                  <label
+                    key={option.id}
+                    className="flex items-center gap-2 px-3 py-2 cursor-pointer transition-all duration-150"
+                    style={{
+                      backgroundColor: selected.includes(option.id)
+                        ? theme.colors.accent + "60"
+                        : "transparent",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!selected.includes(option.id)) {
+                        e.currentTarget.style.backgroundColor =
+                          theme.colors.accent + "30";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!selected.includes(option.id)) {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }
                     }}
                   >
-                    {option.label}
-                  </span>
-                </label>
-              ))
-            )}
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(option.id)}
+                      onChange={() => toggleOption(option.id)}
+                      className="w-4 h-4 rounded cursor-pointer"
+                      style={{
+                        accentColor: theme.colors.secondary,
+                      }}
+                    />
+                    <span
+                      className="text-sm flex-1"
+                      style={{
+                        color: theme.colors.primary,
+                        fontSize: "0.875rem",
+                        lineHeight: "1.25rem",
+                      }}
+                    >
+                      {option.label}
+                    </span>
+                  </label>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>

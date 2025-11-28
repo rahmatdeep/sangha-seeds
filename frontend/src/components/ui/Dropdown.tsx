@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { theme } from "../../theme";
-import { IoChevronDown } from "react-icons/io5";
+import { IoChevronDown, IoSearch } from "react-icons/io5";
 
 interface DropdownOption {
   value: string;
@@ -17,6 +17,7 @@ interface DropdownProps {
   onChange: (value: string) => void;
   required?: boolean;
   disabled?: boolean;
+  searchable?: boolean;
 }
 
 export default function Dropdown({
@@ -29,10 +30,13 @@ export default function Dropdown({
   onChange,
   required = false,
   disabled = false,
+  searchable = false,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -41,19 +45,35 @@ export default function Dropdown({
         !dropdownRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
+        setSearchQuery("");
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Focus search input when dropdown opens
+  useEffect(() => {
+    if (isOpen && searchable && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [isOpen, searchable]);
+
   const handleSelect = (optionValue: string) => {
     onChange(optionValue);
     setIsOpen(false);
+    setSearchQuery("");
   };
 
   const selectedOption = options.find((opt) => opt.value === value);
   const displayText = selectedOption?.label || placeholder;
+
+  // Filter options based on search query
+  const filteredOptions = searchQuery
+    ? options.filter((option) =>
+        option.label.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : options;
 
   return (
     <div className="flex flex-col gap-1" ref={dropdownRef}>
@@ -102,52 +122,87 @@ export default function Dropdown({
 
         {isOpen && !disabled && (
           <div
-            className="absolute z-50 w-full mt-1 rounded border shadow-lg max-h-60 overflow-y-auto"
+            className="absolute z-50 w-full mt-1 rounded border shadow-lg max-h-60 overflow-hidden flex flex-col"
             style={{
               background: theme.colors.surface,
               borderColor: theme.colors.accent,
               borderRadius: theme.borderRadius.md,
             }}
           >
-            {options.length === 0 ? (
+            {/* Search Input */}
+            {searchable && (
               <div
-                className="px-3 py-2 text-sm opacity-60"
-                style={{ color: theme.colors.primary }}
+                className="p-2 border-b sticky top-0"
+                style={{
+                  background: theme.colors.surface,
+                  borderColor: theme.colors.accent,
+                }}
               >
-                No options available
+                <div className="relative">
+                  <IoSearch
+                    className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4"
+                    style={{ color: theme.colors.primary, opacity: 0.5 }}
+                  />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full pl-8 pr-3 py-1.5 text-sm rounded border focus:outline-none focus:ring-1"
+                    style={{
+                      borderColor: theme.colors.accent,
+                      background: theme.colors.background,
+                      color: theme.colors.primary,
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
               </div>
-            ) : (
-              options.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleSelect(option.value)}
-                  className="w-full text-left px-3 py-2 text-sm cursor-pointer transition-all duration-150"
-                  style={{
-                    backgroundColor:
-                      value === option.value
-                        ? theme.colors.accent + "60"
-                        : "transparent",
-                    color: theme.colors.primary,
-                    fontSize: "0.875rem",
-                    lineHeight: "1.25rem",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (value !== option.value) {
-                      e.currentTarget.style.backgroundColor =
-                        theme.colors.accent + "30";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (value !== option.value) {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }
-                  }}
-                >
-                  {option.label}
-                </button>
-              ))
             )}
+
+            {/* Options List */}
+            <div className="overflow-y-auto flex-1">
+              {filteredOptions.length === 0 ? (
+                <div
+                  className="px-3 py-2 text-sm opacity-60"
+                  style={{ color: theme.colors.primary }}
+                >
+                  {searchQuery ? "No results found" : "No options available"}
+                </div>
+              ) : (
+                filteredOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => handleSelect(option.value)}
+                    className="w-full text-left px-3 py-2 text-sm cursor-pointer transition-all duration-150"
+                    style={{
+                      backgroundColor:
+                        value === option.value
+                          ? theme.colors.accent + "60"
+                          : "transparent",
+                      color: theme.colors.primary,
+                      fontSize: "0.875rem",
+                      lineHeight: "1.25rem",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (value !== option.value) {
+                        e.currentTarget.style.backgroundColor =
+                          theme.colors.accent + "30";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (value !== option.value) {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>
