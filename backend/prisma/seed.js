@@ -1,401 +1,576 @@
-const { PrismaClient, UserRoles, PotatoSizes, OrderStatus } = require('@prisma/client');
-const bcrypt = require('bcrypt');
+const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Starting seed...');
+  console.log("🌱 Starting seed...");
 
   // Clear existing data
+  console.log("🗑️  Clearing existing data...");
   await prisma.order.deleteMany();
   await prisma.lot.deleteMany();
   await prisma.variety.deleteMany();
-  await prisma.user.deleteMany();
   await prisma.warehouse.deleteMany();
+  await prisma.user.deleteMany();
 
-  console.log('Cleared existing data');
-
-  // Create Varieties
-  const varieties = await Promise.all([
-    prisma.variety.create({ data: { name: 'Russet Burbank' } }),
-    prisma.variety.create({ data: { name: 'Yukon Gold' } }),
-    prisma.variety.create({ data: { name: 'Red Pontiac' } }),
-    prisma.variety.create({ data: { name: 'Kennebec' } }),
-    prisma.variety.create({ data: { name: 'Fingerling' } }),
-    prisma.variety.create({ data: { name: 'Purple Majesty' } }),
-    prisma.variety.create({ data: { name: 'Atlantic' } }),
-    prisma.variety.create({ data: { name: 'Shepody' } }),
-  ]);
-
-  console.log(`Created ${varieties.length} varieties`);
-
-  // Create Warehouses
-  const warehouses = await Promise.all([
-    prisma.warehouse.create({
-      data: {
-        name: 'Central Hub',
-        location: 'Punjab, India',
-        maxStorageCapacity: '50000 tons',
-        maxDryingCapacity: '10000 tons',
-        remarks: 'Main distribution center',
-      },
-    }),
-    prisma.warehouse.create({
-      data: {
-        name: 'North Wing',
-        location: 'Ludhiana, Punjab',
-        maxStorageCapacity: '30000 tons',
-        maxDryingCapacity: '6000 tons',
-        remarks: 'Temperature controlled facility',
-      },
-    }),
-    prisma.warehouse.create({
-      data: {
-        name: 'East Storage',
-        location: 'Jalandhar, Punjab',
-        maxStorageCapacity: '25000 tons',
-        maxDryingCapacity: '5000 tons',
-        remarks: 'Recently renovated',
-      },
-    }),
-    prisma.warehouse.create({
-      data: {
-        name: 'South Facility',
-        location: 'Patiala, Punjab',
-        maxStorageCapacity: '40000 tons',
-        maxDryingCapacity: '8000 tons',
-        remarks: 'Largest capacity warehouse',
-      },
-    }),
-    prisma.warehouse.create({
-      data: {
-        name: 'West Depot',
-        location: 'Amritsar, Punjab',
-        maxStorageCapacity: '20000 tons',
-        maxDryingCapacity: '4000 tons',
-        remarks: 'Near border checkpoint',
-      },
-    }),
-  ]);
-
-  console.log(`Created ${warehouses.length} warehouses`);
-
-  // Hash password for users
-  const hashedPassword = await bcrypt.hash('password123', 10);
+  // Create password hash
+  const passwordHash = await bcrypt.hash("password123", 10);
 
   // Create Users
-  const administrators = await Promise.all([
-    prisma.user.create({
-      data: {
-        name: 'Rajesh Kumar',
-        email: 'rajesh.kumar@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543210',
-        role: UserRoles.Administrator,
-        remarks: 'System administrator',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Priya Singh',
-        email: 'priya.singh@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543211',
-        role: UserRoles.Administrator,
-        remarks: 'IT administrator',
-      },
-    }),
-  ]);
+  console.log("👥 Creating users...");
+  const admin = await prisma.user.create({
+    data: {
+      name: "Admin User",
+      email: "admin@example.com",
+      password: passwordHash,
+      mobile: "9876543210",
+      role: "Administrator",
+      remarks: "System administrator",
+    },
+  });
 
-  const managers = await Promise.all([
-    prisma.user.create({
-      data: {
-        name: 'Amit Sharma',
-        email: 'amit.sharma@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543212',
-        role: UserRoles.Manager,
-        areaOfResponsibility: 'Operations',
-        warehouseid: warehouses[0].id,
-        remarks: 'Senior operations manager',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Sunita Verma',
-        email: 'sunita.verma@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543213',
-        role: UserRoles.Manager,
-        areaOfResponsibility: 'Quality Control',
-        warehouseid: warehouses[1].id,
-        remarks: 'Quality assurance specialist',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Vikram Patel',
-        email: 'vikram.patel@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543214',
-        role: UserRoles.Manager,
-        areaOfResponsibility: 'Logistics',
-        warehouseid: warehouses[2].id,
-        remarks: 'Logistics coordinator',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Neha Gupta',
-        email: 'neha.gupta@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543215',
-        role: UserRoles.Manager,
-        areaOfResponsibility: 'Storage Management',
-        warehouseid: warehouses[3].id,
-      },
-    }),
-  ]);
+  const manager1 = await prisma.user.create({
+    data: {
+      name: "Rajesh Kumar",
+      email: "rajesh.kumar@example.com",
+      password: passwordHash,
+      mobile: "9876543211",
+      role: "Manager",
+      areaOfResponsibility: "North Region",
+      remarks: "Experienced manager",
+    },
+  });
 
-  const readOnlyManagers = await Promise.all([
-    prisma.user.create({
-      data: {
-        name: 'Arun Mehta',
-        email: 'arun.mehta@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543216',
-        role: UserRoles.ReadOnlyManager,
-        areaOfResponsibility: 'Analytics',
-        warehouseid: warehouses[0].id,
-        remarks: 'Data analyst',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Kavita Desai',
-        email: 'kavita.desai@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543217',
-        role: UserRoles.ReadOnlyManager,
-        areaOfResponsibility: 'Reporting',
-        warehouseid: warehouses[4].id,
-      },
-    }),
-  ]);
+  const manager2 = await prisma.user.create({
+    data: {
+      name: "Priya Sharma",
+      email: "priya.sharma@example.com",
+      password: passwordHash,
+      mobile: "9876543212",
+      role: "Manager",
+      areaOfResponsibility: "South Region",
+      remarks: "Quality control specialist",
+    },
+  });
 
-  const employees = await Promise.all([
-    prisma.user.create({
-      data: {
-        name: 'Rohit Singh',
-        email: 'rohit.singh@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543218',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Loading',
-        warehouseid: warehouses[0].id,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Anjali Joshi',
-        email: 'anjali.joshi@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543219',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Unloading',
-        warehouseid: warehouses[0].id,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Suresh Yadav',
-        email: 'suresh.yadav@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543220',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Sorting',
-        warehouseid: warehouses[1].id,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Meena Kumari',
-        email: 'meena.kumari@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543221',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Packaging',
-        warehouseid: warehouses[1].id,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Deepak Chauhan',
-        email: 'deepak.chauhan@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543222',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Inventory',
-        warehouseid: warehouses[2].id,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Pooja Reddy',
-        email: 'pooja.reddy@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543223',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Quality Check',
-        warehouseid: warehouses[2].id,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Manish Tiwari',
-        email: 'manish.tiwari@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543224',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Dispatch',
-        warehouseid: warehouses[3].id,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Divya Nair',
-        email: 'divya.nair@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543225',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Receiving',
-        warehouseid: warehouses[3].id,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Karan Malhotra',
-        email: 'karan.malhotra@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543226',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Storage',
-        warehouseid: warehouses[4].id,
-      },
-    }),
-    prisma.user.create({
-      data: {
-        name: 'Simran Kaur',
-        email: 'simran.kaur@warehouse.com',
-        password: hashedPassword,
-        mobile: '+91-9876543227',
-        role: UserRoles.Employee,
-        areaOfResponsibility: 'Documentation',
-        warehouseid: warehouses[4].id,
-      },
-    }),
-  ]);
+  const manager3 = await prisma.user.create({
+    data: {
+      name: "Amit Patel",
+      email: "amit.patel@example.com",
+      password: passwordHash,
+      mobile: "9876543213",
+      role: "Manager",
+      areaOfResponsibility: "East Region",
+    },
+  });
 
-  console.log(`Created ${administrators.length + managers.length + readOnlyManagers.length + employees.length} users`);
+  const readOnlyManager = await prisma.user.create({
+    data: {
+      name: "Sneha Reddy",
+      email: "sneha.reddy@example.com",
+      password: passwordHash,
+      mobile: "9876543214",
+      role: "ReadOnlyManager",
+      areaOfResponsibility: "Audit Department",
+    },
+  });
 
-  // Create Lots
+  // Create Warehouses
+  console.log("🏭 Creating warehouses...");
+  const warehouse1 = await prisma.warehouse.create({
+    data: {
+      name: "Ludhiana Central Warehouse",
+      location: "Ludhiana, Punjab",
+      maxStorageCapacity: "5000 tons",
+      maxDryingCapacity: "500 tons/day",
+      assignedManagerId: manager1.id,
+      remarks: "Main facility with cold storage",
+    },
+  });
+
+  const warehouse2 = await prisma.warehouse.create({
+    data: {
+      name: "Jalandhar Storage Unit",
+      location: "Jalandhar, Punjab",
+      maxStorageCapacity: "3000 tons",
+      maxDryingCapacity: "300 tons/day",
+      assignedManagerId: manager2.id,
+      remarks: "Secondary facility",
+    },
+  });
+
+  const warehouse3 = await prisma.warehouse.create({
+    data: {
+      name: "Amritsar Cold Storage",
+      location: "Amritsar, Punjab",
+      maxStorageCapacity: "4000 tons",
+      maxDryingCapacity: "400 tons/day",
+      assignedManagerId: manager3.id,
+    },
+  });
+
+  const warehouse4 = await prisma.warehouse.create({
+    data: {
+      name: "Patiala Distribution Center",
+      location: "Patiala, Punjab",
+      maxStorageCapacity: "2500 tons",
+      maxDryingCapacity: "250 tons/day",
+      assignedManagerId: manager1.id,
+      remarks: "Distribution hub",
+    },
+  });
+
+  // Create Employees and assign to warehouses
+  console.log("👷 Creating employees...");
+  const employee1 = await prisma.user.create({
+    data: {
+      name: "Harpreet Singh",
+      email: "harpreet.singh@example.com",
+      password: passwordHash,
+      mobile: "9876543221",
+      role: "Employee",
+      warehouseid: warehouse1.id,
+      areaOfResponsibility: "Loading/Unloading",
+    },
+  });
+
+  const employee2 = await prisma.user.create({
+    data: {
+      name: "Simran Kaur",
+      email: "simran.kaur@example.com",
+      password: passwordHash,
+      mobile: "9876543222",
+      role: "Employee",
+      warehouseid: warehouse1.id,
+      areaOfResponsibility: "Quality Check",
+    },
+  });
+
+  const employee3 = await prisma.user.create({
+    data: {
+      name: "Gurpreet Singh",
+      email: "gurpreet.singh@example.com",
+      password: passwordHash,
+      mobile: "9876543223",
+      role: "Employee",
+      warehouseid: warehouse2.id,
+      areaOfResponsibility: "Inventory Management",
+    },
+  });
+
+  const employee4 = await prisma.user.create({
+    data: {
+      name: "Manpreet Kaur",
+      email: "manpreet.kaur@example.com",
+      password: passwordHash,
+      mobile: "9876543224",
+      role: "Employee",
+      warehouseid: warehouse2.id,
+      areaOfResponsibility: "Dispatch",
+    },
+  });
+
+  const employee5 = await prisma.user.create({
+    data: {
+      name: "Jaspreet Singh",
+      email: "jaspreet.singh@example.com",
+      password: passwordHash,
+      mobile: "9876543225",
+      role: "Employee",
+      warehouseid: warehouse3.id,
+      areaOfResponsibility: "Storage Management",
+    },
+  });
+
+  const employee6 = await prisma.user.create({
+    data: {
+      name: "Navpreet Kaur",
+      email: "navpreet.kaur@example.com",
+      password: passwordHash,
+      mobile: "9876543226",
+      role: "Employee",
+      warehouseid: warehouse3.id,
+      areaOfResponsibility: "Quality Assurance",
+    },
+  });
+
+  const employee7 = await prisma.user.create({
+    data: {
+      name: "Kuldeep Singh",
+      email: "kuldeep.singh@example.com",
+      password: passwordHash,
+      mobile: "9876543227",
+      role: "Employee",
+      warehouseid: warehouse4.id,
+      areaOfResponsibility: "Transportation",
+    },
+  });
+
+  const employee8 = await prisma.user.create({
+    data: {
+      name: "Amarjeet Kaur",
+      email: "amarjeet.kaur@example.com",
+      password: passwordHash,
+      mobile: "9876543228",
+      role: "Employee",
+      warehouseid: warehouse4.id,
+      areaOfResponsibility: "Documentation",
+    },
+  });
+
+  // Create Varieties
+  console.log("🥔 Creating potato varieties...");
+  const variety1 = await prisma.variety.create({
+    data: { name: "Kufri Jyoti" },
+  });
+
+  const variety2 = await prisma.variety.create({
+    data: { name: "Kufri Pukhraj" },
+  });
+
+  const variety3 = await prisma.variety.create({
+    data: { name: "Kufri Chandramukhi" },
+  });
+
+  const variety4 = await prisma.variety.create({
+    data: { name: "Kufri Badshah" },
+  });
+
+  const variety5 = await prisma.variety.create({
+    data: { name: "Kufri Ashoka" },
+  });
+
+  const variety6 = await prisma.variety.create({
+    data: { name: "Lady Rosetta" },
+  });
+
+  const variety7 = await prisma.variety.create({
+    data: { name: "Atlantic" },
+  });
+
+  // Helper function for random dates
+  const getRandomDate = (start, end) => {
+    return new Date(
+      start.getTime() + Math.random() * (end.getTime() - start.getTime())
+    );
+  };
+
+  const addDays = (date, days) => {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
+
+  // Create Lots with varying dates
+  console.log("📦 Creating lots...");
+  const sizes = ["Seed", "Soot12", "Soot11", "Soot10", "Soot8", "Soot4to6", "Soot4to8"];
+  const varieties = [
+    variety1,
+    variety2,
+    variety3,
+    variety4,
+    variety5,
+    variety6,
+    variety7,
+  ];
+  const warehouses = [warehouse1, warehouse2, warehouse3, warehouse4];
+
   const lots = [];
-  const sizes = Object.values(PotatoSizes);
-  
-  for (let i = 0; i < 50; i++) {
-    const variety = varieties[Math.floor(Math.random() * varieties.length)];
-    const warehouse = warehouses[Math.floor(Math.random() * warehouses.length)];
-    const size = sizes[Math.floor(Math.random() * sizes.length)];
-    const quantity = Math.floor(Math.random() * 10000) + 1000;
-    const quantityOnHold = Math.floor(Math.random() * (quantity / 2));
-    const storageDate = new Date(Date.now() - Math.random() * 180 * 24 * 60 * 60 * 1000);
-    const expiryDate = new Date(storageDate.getTime() + (365 * 24 * 60 * 60 * 1000));
+  let lotCounter = 1;
 
+  // Create lots with past storage dates
+  for (let i = 0; i < 30; i++) {
+    const storageDate = getRandomDate(
+      new Date("2024-06-01"),
+      new Date("2024-11-01")
+    );
     const lot = await prisma.lot.create({
       data: {
-        lotNo: `LOT-${String(i + 1).padStart(5, '0')}`,
-        varietyId: variety.id,
-        quantity,
-        quantityOnHold,
-        size,
-        storageDate,
-        expiryDate,
-        warehouseId: warehouse.id,
-        remarks: Math.random() > 0.7 ? 'Premium quality batch' : undefined,
+        lotNo: `LOT-2024-${String(lotCounter++).padStart(4, "0")}`,
+        varietyId: varieties[Math.floor(Math.random() * varieties.length)].id,
+        quantity: Math.floor(Math.random() * 5000) + 1000,
+        quantityOnHold: Math.floor(Math.random() * 500),
+        size: sizes[Math.floor(Math.random() * sizes.length)],
+        storageDate: storageDate,
+        expiryDate: addDays(storageDate, Math.floor(Math.random() * 120) + 60),
+        warehouseId: warehouses[Math.floor(Math.random() * warehouses.length)]
+          .id,
+        remarks:
+          Math.random() > 0.7
+            ? "Good quality stock"
+            : Math.random() > 0.5
+              ? "Premium grade"
+              : undefined,
       },
     });
-
     lots.push(lot);
   }
 
-  console.log(`Created ${lots.length} lots`);
+  // Create lots with current/recent storage dates
+  for (let i = 0; i < 20; i++) {
+    const storageDate = getRandomDate(
+      new Date("2024-11-15"),
+      new Date("2024-11-29")
+    );
+    const lot = await prisma.lot.create({
+      data: {
+        lotNo: `LOT-2024-${String(lotCounter++).padStart(4, "0")}`,
+        varietyId: varieties[Math.floor(Math.random() * varieties.length)].id,
+        quantity: Math.floor(Math.random() * 5000) + 1000,
+        quantityOnHold: Math.floor(Math.random() * 800),
+        size: sizes[Math.floor(Math.random() * sizes.length)],
+        storageDate: storageDate,
+        expiryDate: addDays(storageDate, Math.floor(Math.random() * 120) + 60),
+        warehouseId: warehouses[Math.floor(Math.random() * warehouses.length)]
+          .id,
+      },
+    });
+    lots.push(lot);
+  }
+
+  // Create lots with future storage dates
+  for (let i = 0; i < 15; i++) {
+    const storageDate = getRandomDate(
+      new Date("2024-12-01"),
+      new Date("2025-01-15")
+    );
+    const lot = await prisma.lot.create({
+      data: {
+        lotNo: `LOT-2025-${String(i + 1).padStart(4, "0")}`,
+        varietyId: varieties[Math.floor(Math.random() * varieties.length)].id,
+        quantity: Math.floor(Math.random() * 5000) + 1000,
+        quantityOnHold: 0,
+        size: sizes[Math.floor(Math.random() * sizes.length)],
+        storageDate: storageDate,
+        expiryDate: addDays(storageDate, Math.floor(Math.random() * 120) + 60),
+        warehouseId: warehouses[Math.floor(Math.random() * warehouses.length)]
+          .id,
+        remarks: "Scheduled intake",
+      },
+    });
+    lots.push(lot);
+  }
 
   // Create Orders
-  const orderStatuses = [OrderStatus.placed, OrderStatus.acknowledged, OrderStatus.completed];
+  console.log("📋 Creating orders...");
+  const employees = [
+    employee1,
+    employee2,
+    employee3,
+    employee4,
+    employee5,
+    employee6,
+    employee7,
+    employee8,
+  ];
+  const managers = [manager1, manager2, manager3];
+  const creators = [admin, manager1, manager2, manager3];
   const destinations = [
-    'Delhi Market',
-    'Mumbai Distribution',
-    'Bangalore Hub',
-    'Kolkata Center',
-    'Chennai Depot',
-    'Hyderabad Facility',
-    'Pune Storage',
-    'Ahmedabad Warehouse',
-    'Jaipur Center',
-    'Chandigarh Hub',
+    "Delhi Market",
+    "Mumbai Distribution",
+    "Bangalore Depot",
+    "Kolkata Wholesale",
+    "Chennai Market",
+    "Hyderabad Hub",
+    "Pune Distribution",
+    "Ahmedabad Market",
+    "Jaipur Wholesale",
+    "Chandigarh Local",
   ];
 
-  for (let i = 0; i < 100; i++) {
+  // Past completed orders
+  for (let i = 0; i < 40; i++) {
+    const createdAt = getRandomDate(
+      new Date("2024-06-01"),
+      new Date("2024-11-15")
+    );
+    const acknowledgedAt = addDays(createdAt, Math.random() * 2);
+    const completedAt = addDays(acknowledgedAt, Math.random() * 3 + 1);
     const lot = lots[Math.floor(Math.random() * lots.length)];
-    const warehouse = warehouses.find(w => w.id === lot.warehouseId);
-    const creator = [...administrators, ...managers][Math.floor(Math.random() * (administrators.length + managers.length))];
-    const status = orderStatuses[Math.floor(Math.random() * orderStatuses.length)];
-    const quantity = Math.floor(Math.random() * 500) + 50;
-    const destination = destinations[Math.floor(Math.random() * destinations.length)];
-    
-    const assignedManager = managers.filter(m => m.warehouseid === warehouse.id);
-    const assignedEmployeesForOrder = employees.filter(e => e.warehouseid === warehouse.id).slice(0, Math.floor(Math.random() * 3) + 1);
-    
-    const createdAt = new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000);
-    const isAcknowledged = status !== OrderStatus.placed;
-    const isComplete = status === OrderStatus.completed;
-    const acknowledgedAt = isAcknowledged ? new Date(createdAt.getTime() + Math.random() * 2 * 24 * 60 * 60 * 1000) : undefined;
-    const completedAt = isComplete && acknowledgedAt ? new Date(acknowledgedAt.getTime() + Math.random() * 5 * 24 * 60 * 60 * 1000) : undefined;
+    const assignedManager = managers[Math.floor(Math.random() * managers.length)];
+    const assignedEmployeesList = [
+      employees[Math.floor(Math.random() * employees.length)],
+    ];
+    if (Math.random() > 0.5) {
+      assignedEmployeesList.push(
+        employees[Math.floor(Math.random() * employees.length)]
+      );
+    }
 
     await prisma.order.create({
       data: {
-        destination,
+        destination:
+          destinations[Math.floor(Math.random() * destinations.length)],
         lotId: lot.id,
-        quantity,
-        warehouseId: warehouse.id,
-        createdById: creator.id,
-        assignedManager: assignedManager.length > 0 ? {
-          connect: assignedManager.map(m => ({ id: m.id }))
-        } : undefined,
-        assignedEmployees: assignedEmployeesForOrder.length > 0 ? {
-          connect: assignedEmployeesForOrder.map(e => ({ id: e.id }))
-        } : undefined,
-        createdAt,
-        updatedAt: acknowledgedAt || completedAt,
-        completedAt,
-        isComplete,
-        completedById: isComplete ? assignedEmployeesForOrder[0]?.id : undefined,
-        isAcknowledged,
-        acknowledgedById: isAcknowledged && assignedManager[0] ? assignedManager[0].id : undefined,
-        acknowledgedAt,
-        status,
-        remarks: Math.random() > 0.8 ? 'Urgent delivery required' : undefined,
+        quantity: Math.floor(Math.random() * 500) + 100,
+        warehouseId: lot.warehouseId,
+        createdById: creators[Math.floor(Math.random() * creators.length)].id,
+        assignedManagerId: assignedManager.id,
+        createdAt: createdAt,
+        updatedAt: completedAt,
+        completedAt: completedAt,
+        isComplete: true,
+        completedById: assignedManager.id,
+        isAcknowledged: true,
+        acknowledgedById: assignedManager.id,
+        acknowledgedAt: acknowledgedAt,
+        status: "completed",
+        remarks: Math.random() > 0.7 ? "Delivered on time" : undefined,
+        assignedEmployees: {
+          connect: assignedEmployeesList.map((e) => ({ id: e.id })),
+        },
       },
     });
   }
 
-  console.log('Created 100 orders');
-  console.log('Seed completed successfully!');
+  // Acknowledged orders (in progress)
+  for (let i = 0; i < 25; i++) {
+    const createdAt = getRandomDate(
+      new Date("2024-11-10"),
+      new Date("2024-11-28")
+    );
+    const acknowledgedAt = addDays(createdAt, Math.random() * 2);
+    const lot = lots[Math.floor(Math.random() * lots.length)];
+    const assignedManager = managers[Math.floor(Math.random() * managers.length)];
+    const assignedEmployeesList = [
+      employees[Math.floor(Math.random() * employees.length)],
+    ];
+    if (Math.random() > 0.5) {
+      assignedEmployeesList.push(
+        employees[Math.floor(Math.random() * employees.length)]
+      );
+    }
+
+    await prisma.order.create({
+      data: {
+        destination:
+          destinations[Math.floor(Math.random() * destinations.length)],
+        lotId: lot.id,
+        quantity: Math.floor(Math.random() * 500) + 100,
+        warehouseId: lot.warehouseId,
+        createdById: creators[Math.floor(Math.random() * creators.length)].id,
+        assignedManagerId: assignedManager.id,
+        createdAt: createdAt,
+        updatedAt: acknowledgedAt,
+        isComplete: false,
+        isAcknowledged: true,
+        acknowledgedById: assignedManager.id,
+        acknowledgedAt: acknowledgedAt,
+        status: "acknowledged",
+        remarks: "In progress",
+        assignedEmployees: {
+          connect: assignedEmployeesList.map((e) => ({ id: e.id })),
+        },
+      },
+    });
+  }
+
+  // Recently placed orders (not yet acknowledged)
+  for (let i = 0; i < 20; i++) {
+    const createdAt = getRandomDate(
+      new Date("2024-11-25"),
+      new Date("2024-11-29")
+    );
+    const lot = lots[Math.floor(Math.random() * lots.length)];
+    const assignedManager = managers[Math.floor(Math.random() * managers.length)];
+    const assignedEmployeesList = [
+      employees[Math.floor(Math.random() * employees.length)],
+    ];
+
+    await prisma.order.create({
+      data: {
+        destination:
+          destinations[Math.floor(Math.random() * destinations.length)],
+        lotId: lot.id,
+        quantity: Math.floor(Math.random() * 500) + 100,
+        warehouseId: lot.warehouseId,
+        createdById: creators[Math.floor(Math.random() * creators.length)].id,
+        assignedManagerId: assignedManager.id,
+        createdAt: createdAt,
+        updatedAt: createdAt,
+        isComplete: false,
+        isAcknowledged: false,
+        status: "placed",
+        remarks: "Pending acknowledgment",
+        assignedEmployees: {
+          connect: assignedEmployeesList.map((e) => ({ id: e.id })),
+        },
+      },
+    });
+  }
+
+  // Future scheduled orders
+  for (let i = 0; i < 30; i++) {
+    const createdAt = getRandomDate(
+      new Date("2024-11-20"),
+      new Date("2024-11-28")
+    );
+    const futureLot = lots.find(
+      (l) => l.storageDate && l.storageDate > new Date()
+    );
+    const lot = futureLot || lots[Math.floor(Math.random() * lots.length)];
+    const assignedManager = managers[Math.floor(Math.random() * managers.length)];
+    const assignedEmployeesList = [
+      employees[Math.floor(Math.random() * employees.length)],
+    ];
+
+    const isAcknowledged = Math.random() > 0.5;
+    const acknowledgedAt = isAcknowledged
+      ? addDays(createdAt, Math.random() * 2)
+      : null;
+
+    await prisma.order.create({
+      data: {
+        destination:
+          destinations[Math.floor(Math.random() * destinations.length)],
+        lotId: lot.id,
+        quantity: Math.floor(Math.random() * 500) + 100,
+        warehouseId: lot.warehouseId,
+        createdById: creators[Math.floor(Math.random() * creators.length)].id,
+        assignedManagerId: assignedManager.id,
+        createdAt: createdAt,
+        updatedAt: acknowledgedAt || createdAt,
+        isComplete: false,
+        isAcknowledged: isAcknowledged,
+        acknowledgedById: isAcknowledged ? assignedManager.id : null,
+        acknowledgedAt: acknowledgedAt,
+        status: isAcknowledged ? "acknowledged" : "placed",
+        remarks: "Future delivery scheduled",
+        assignedEmployees: {
+          connect: assignedEmployeesList.map((e) => ({ id: e.id })),
+        },
+      },
+    });
+  }
+
+  console.log("✅ Seed completed successfully!");
+  console.log(`
+  📊 Summary:
+  - Users: ${await prisma.user.count()}
+  - Warehouses: ${await prisma.warehouse.count()}
+  - Varieties: ${await prisma.variety.count()}
+  - Lots: ${await prisma.lot.count()}
+  - Orders: ${await prisma.order.count()}
+  
+  🔐 Test Credentials:
+  Admin:
+    Email: admin@example.com
+    Password: password123
+  
+  Manager:
+    Email: rajesh.kumar@example.com
+    Password: password123
+  
+  Employee:
+    Email: harpreet.singh@example.com
+    Password: password123
+  `);
 }
 
 main()
   .catch((e) => {
-    console.error('Error during seed:', e);
+    console.error("❌ Error during seed:", e);
     process.exit(1);
   })
   .finally(async () => {

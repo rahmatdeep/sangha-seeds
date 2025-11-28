@@ -112,6 +112,7 @@ export const OrderSchema = z
     quantity: z.number().int().positive("Quantity must be positive"),
     warehouseId: z.string().uuid(),
     createdById: z.string().uuid(),
+    assignedManagerId: z.string().uuid(),
     createdAt: z.date(),
     updatedAt: z.date().nullable().optional(),
     completedAt: z.date().nullable().optional(),
@@ -432,7 +433,7 @@ export type MyOrdersResponseOrder = Order & {
   acknowledgedBy?: User | null;
   completedBy?: User | null;
   createdBy: User;
-  assignedManager: User | null;
+  assignedManager: User;
   assignedEmployees: User[];
   lot: Lot;
   warehouse: Warehouse;

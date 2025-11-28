@@ -48,6 +48,7 @@ export const WarehouseSchema = z.object({
   location: z.string().min(1, "Location is required"),
   maxStorageCapacity: z.string().nullable().optional(),
   maxDryingCapacity: z.string().nullable().optional(),
+  assignedManagerId: z.string().uuid().nullable().optional(),
   remarks: z.string().nullable().optional(),
 });
 
@@ -111,6 +112,7 @@ export const OrderSchema = z
     quantity: z.number().int().positive("Quantity must be positive"),
     warehouseId: z.string().uuid(),
     createdById: z.string().uuid(),
+    assignedManagerId: z.string().uuid(),
     createdAt: z.date(),
     updatedAt: z.date().nullable().optional(),
     completedAt: z.date().nullable().optional(),
@@ -247,7 +249,7 @@ export const WarehouseQuerySchema = PaginationSchema.extend({
 
 // Warehouse Detail Query Parameters
 export const WarehouseDetailQuerySchema = z.object({
-  include: z.enum(["employees", "lots", "orders", "all"]).optional(),
+  include: z.enum(["employees", "lots", "orders", "manager", "all"]).optional(),
 });
 
 // Variety Query Parameters
@@ -431,7 +433,7 @@ export type MyOrdersResponseOrder = Order & {
   acknowledgedBy?: User | null;
   completedBy?: User | null;
   createdBy: User;
-  assignedManager: User | null;
+  assignedManager: User;
   assignedEmployees: User[];
   lot: Lot;
   warehouse: Warehouse;
