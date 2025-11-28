@@ -92,7 +92,7 @@ export async function fetchLots(token: string) {
 
 // warehouses
 export async function fetchWarehouses(token: string) {
-  const res = await axios.get(`${API_BASE_URL}/warehouse/warehouses`, {
+  const res = await axios.get(`${API_BASE_URL}/warehouse/`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data.warehouses || res.data;

@@ -105,15 +105,12 @@ export default function CreateOrder() {
           status: "placed",
           isComplete: false,
           isAcknowledged: false,
+          assignedManagerId: assignedManager,
         },
         token
       );
       const orderId = res.message;
 
-      // Assign managers
-      if (assignedManager) {
-        await assignManager(orderId, assignedManager, token);
-      }
 
       // Assign employees
       for (const employeeId of assignedEmployees) {
