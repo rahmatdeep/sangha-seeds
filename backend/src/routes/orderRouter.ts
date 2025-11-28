@@ -167,6 +167,15 @@ router.get("/", readOnlyMiddleware, async (req: Request, res: Response) => {
       orderBy: {
         [sortBy]: order,
       },
+      include: {
+        acknowledgedBy: true,
+        completedBy: true,
+        createdBy: true,
+        assignedManager: true,
+        assignedEmployees: true,
+        lot: true,
+        warehouse: true,
+      },
     });
     return res.status(200).json({ orders });
   } catch (error) {
