@@ -6,11 +6,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import ProfilePage from "./pages/ProfilePage";
 import CreateOrder from "./pages/CreateOrder";
 import { ToastProvider } from "./components/ui/ToastProvider";
+import Dashboard from "./pages/Dashboard";
 
 // Dummy pages for demonstration
-function Dashboard() {
-  return <div>Dashboard Page</div>;
-}
+
 
 function OrderDetails() {
   return <div>Order Details Page</div>;
