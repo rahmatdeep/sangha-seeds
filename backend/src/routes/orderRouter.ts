@@ -212,7 +212,7 @@ router.get("/my-orders", async (req: Request, res: Response) => {
       // DEFAULT: When no type is specified, return orders where user is involved in ANY way
       whereClause.OR = [
         { assignedEmployees: { some: { id: userId } } },
-        { assignedManager: { some: { id: userId } } },
+        { assignedManagerId: userId },
         { createdById: userId },
       ];
     }
