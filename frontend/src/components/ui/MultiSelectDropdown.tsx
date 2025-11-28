@@ -119,12 +119,10 @@ export default function MultiSelectDropdown({
           <span className="truncate">{getDisplayText()}</span>
         </button>
         <div
-          className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none transition-transform duration-200"
+          className="absolute right-3 inset-y-0 flex items-center pointer-events-none transition-transform duration-200"
           style={{
             color: theme.colors.primary,
-            transform: `translateY(-50%) ${
-              isOpen ? "rotate(180deg)" : "rotate(0deg)"
-            }`,
+            transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
             opacity: disabled ? 0.5 : 1,
           }}
         >
