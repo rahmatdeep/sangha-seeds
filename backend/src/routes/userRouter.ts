@@ -82,15 +82,15 @@ router.get("/", readOnlyMiddleware, async (req: Request, res: Response) => {
           }
         : undefined,
     });
-    return res.status(200).json({users});
+    return res.status(200).json({ users });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
   }
 });
 
-router.get("/me",  async (req: Request, res: Response) => {
-  if(!req.userId){
+router.get("/me", async (req: Request, res: Response) => {
+  if (!req.userId) {
     return res.status(401).json({ message: "Unauthorized" });
   }
   try {
@@ -100,7 +100,8 @@ router.get("/me",  async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    return res.status(200).json({user});
+    const { password, ...userWithoutPassword } = user;
+    return res.status(200).json({ user: userWithoutPassword });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal server error" });
