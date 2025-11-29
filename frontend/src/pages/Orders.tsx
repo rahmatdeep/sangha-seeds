@@ -51,11 +51,11 @@ export default function Orders() {
 
       let data;
       if (role === "Administrator" && showMyOrders) {
-        data = await fetchMyOrders(token, apiFilters);
+        data = await fetchMyOrders(apiFilters);
       } else if (role === "Administrator") {
-        data = await fetchAllOrders(token, apiFilters);
+        data = await fetchAllOrders(apiFilters);
       } else {
-        data = await fetchMyOrders(token, apiFilters);
+        data = await fetchMyOrders(apiFilters);
       }
       setOrders(data);
     } catch (error) {
