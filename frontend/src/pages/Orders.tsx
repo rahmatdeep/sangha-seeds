@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   fetchMyOrders,
   fetchAllOrders,
@@ -14,13 +14,13 @@ import { theme } from "../theme";
 import { FaClipboardList, FaFilter } from "react-icons/fa";
 import FilterModal from "../components/FilterModal";
 import { toISODateRange } from "../utils/date";
+import { is } from "zod/locales";
 
 export default function Orders() {
   const [orders, setOrders] = useState<MyOrdersResponseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState<Record<string, any>>({});
-  const token = localStorage.getItem("token") || "";
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const role = user.role;
@@ -30,59 +30,69 @@ export default function Orders() {
   const [managers, setManagers] = useState([]);
   const [varieties, setVarieties] = useState([]);
 
+  const isEmployee = role === "Employee";
+  const isAdminOrManager =
+    role === "Administrator" ||
+    role === "Manager" ||
+    role === "ReadOnlyManager";
+
   // Load orders with filters
-  const loadOrders = async (filterParams: Record<string, any>) => {
-    setLoading(true);
-    try {
-      // Extract showMyOrders before processing
-      const { showMyOrders, createdFrom, createdTo, ...restFilters } =
-        filterParams;
+  const loadOrders = useCallback(
+    async (filterParams: Record<string, any>) => {
+      setLoading(true);
+      try {
+        // Extract showMyOrders before processing
+        const { showMyOrders, createdFrom, createdTo, ...restFilters } =
+          filterParams;
 
-      // Convert YYYY-MM-DD dates to ISO datetime strings
-      const { createdFrom: isoFrom, createdTo: isoTo } = toISODateRange(
-        createdFrom,
-        createdTo
-      );
+        // Convert YYYY-MM-DD dates to ISO datetime strings
+        const { createdFrom: isoFrom, createdTo: isoTo } = toISODateRange(
+          createdFrom,
+          createdTo
+        );
 
-      // Build API filters
-      const apiFilters: Record<string, any> = { ...restFilters };
-      if (isoFrom) apiFilters.createdFrom = isoFrom;
-      if (isoTo) apiFilters.createdTo = isoTo;
+        // Build API filters
+        const apiFilters: Record<string, any> = { ...restFilters };
+        if (isoFrom) apiFilters.createdFrom = isoFrom;
+        if (isoTo) apiFilters.createdTo = isoTo;
 
-      let data;
-      if (role === "Administrator" && showMyOrders) {
-        data = await fetchMyOrders(apiFilters);
-      } else if (role === "Administrator") {
-        data = await fetchAllOrders(apiFilters);
-      } else {
-        data = await fetchMyOrders(apiFilters);
+        let data;
+        if (isEmployee) {
+          data = await fetchMyOrders(apiFilters);
+        } else if (isAdminOrManager && showMyOrders) {
+          data = await fetchMyOrders(apiFilters);
+        } else {
+          data = await fetchAllOrders(apiFilters);
+        }
+        setOrders(data);
+      } catch (error) {
+        console.error("Error loading orders:", error);
       }
-      setOrders(data);
-    } catch (error) {
-      console.error("Error loading orders:", error);
-    }
-    setLoading(false);
-  };
+      setLoading(false);
+    },
+    [isEmployee, isAdminOrManager]
+  );
 
   useEffect(() => {
     loadOrders(filters);
-    // eslint-disable-next-line
-  }, [token, filters]);
+  }, [filters, loadOrders]);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        setLots(await fetchLots(token));
-        setWarehouses(await fetchWarehouses(token));
-        setEmployees(await fetchUsersByRole("Employee", token));
-        setManagers(await fetchUsersByRole("Manager", token));
-        setVarieties(await fetchVarieties(token));
+        if (!isEmployee) {
+          setLots(await fetchLots());
+          setWarehouses(await fetchWarehouses());
+          setEmployees(await fetchUsersByRole("Employee"));
+          setManagers(await fetchUsersByRole("Manager"));
+          setVarieties(await fetchVarieties());
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     }
     fetchData();
-  }, [token]);
+  }, [isEmployee]);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
@@ -151,11 +161,11 @@ export default function Orders() {
           filters={filters}
           setFilters={setFilters}
           onClose={() => setShowFilter(false)}
-          lots={lots}
-          warehouses={warehouses}
-          managers={managers}
-          employees={employees}
-          varieties={varieties}
+          lots={isEmployee ? [] : lots}
+          warehouses={isEmployee ? [] : warehouses}
+          managers={isEmployee ? [] : managers}
+          employees={isEmployee ? [] : employees}
+          varieties={isEmployee ? [] : varieties}
           role={role}
         />
       )}
@@ -240,7 +250,6 @@ export default function Orders() {
             <OrderCard
               key={order.id}
               order={order}
-              token={token}
               onStatusChange={() => loadOrders(filters)}
             />
           ))}

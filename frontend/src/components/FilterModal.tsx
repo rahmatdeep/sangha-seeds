@@ -40,6 +40,8 @@ export default function FilterModal({
     filters.showMyOrders || false
   );
 
+  const isEmployee = role === "Employee";
+
   const handleChange = (name: string, value: string) => {
     setLocalFilters({ ...localFilters, [name]: value });
   };
@@ -93,87 +95,90 @@ export default function FilterModal({
             placeholder="Select status"
           />
         </div>
+        {!isEmployee && (
+          <>
+            {/* Warehouse */}
+            <div className="mb-3">
+              <Dropdown
+                label="Warehouse"
+                options={warehouses.map((wh: Warehouse) => ({
+                  value: wh.id,
+                  label: wh.name,
+                }))}
+                value={localFilters.warehouseId || ""}
+                onChange={(val) => handleChange("warehouseId", val)}
+                placeholder="Select warehouse"
+                searchable
+              />
+            </div>
 
-        {/* Warehouse */}
-        <div className="mb-3">
-          <Dropdown
-            label="Warehouse"
-            options={warehouses.map((wh: Warehouse) => ({
-              value: wh.id,
-              label: wh.name,
-            }))}
-            value={localFilters.warehouseId || ""}
-            onChange={(val) => handleChange("warehouseId", val)}
-            placeholder="Select warehouse"
-            searchable
-          />
-        </div>
+            {/* Lot*/}
+            <div className="mb-3">
+              <Dropdown
+                label="Lot"
+                options={lots.map((lot: Lot) => ({
+                  value: lot.id,
+                  label: lot.lotNo,
+                }))}
+                value={localFilters.lotId || ""}
+                onChange={(val) => handleChange("lotId", val)}
+                placeholder="Select lot"
+                searchable
+              />
+            </div>
 
-        {/* Lot*/}
-        <div className="mb-3">
-          <Dropdown
-            label="Lot"
-            options={lots.map((lot: Lot) => ({
-              value: lot.id,
-              label: lot.lotNo,
-            }))}
-            value={localFilters.lotId || ""}
-            onChange={(val) => handleChange("lotId", val)}
-            placeholder="Select lot"
-            searchable
-          />
-        </div>
+            {/* Variety */}
+            <div className="mb-3">
+              <Dropdown
+                label="Variety"
+                options={
+                  varieties?.map((variety) => ({
+                    value: variety.id,
+                    label: variety.name,
+                  })) || []
+                }
+                value={localFilters.varietyId || ""}
+                onChange={(val) => handleChange("varietyId", val)}
+                placeholder="Select variety"
+                searchable
+              />
+            </div>
 
-        {/* Variety */}
-        <div className="mb-3">
-          <Dropdown
-            label="Variety"
-            options={
-              varieties?.map((variety) => ({
-                value: variety.id,
-                label: variety.name,
-              })) || []
-            }
-            value={localFilters.varietyId || ""}
-            onChange={(val) => handleChange("varietyId", val)}
-            placeholder="Select variety"
-            searchable
-          />
-        </div>
+            {/* Assigned Manager */}
+            <div className="mb-3">
+              <Dropdown
+                label="Assigned Manager"
+                options={
+                  managers?.map((mgr) => ({
+                    value: mgr.id,
+                    label: mgr.name,
+                  })) || []
+                }
+                value={localFilters.assignedManagerId || ""}
+                onChange={(val) => handleChange("assignedManagerId", val)}
+                placeholder="Select manager"
+                searchable
+              />
+            </div>
 
-        {/* Assigned Manager */}
-        <div className="mb-3">
-          <Dropdown
-            label="Assigned Manager"
-            options={
-              managers?.map((mgr) => ({
-                value: mgr.id,
-                label: mgr.name,
-              })) || []
-            }
-            value={localFilters.assignedManagerId || ""}
-            onChange={(val) => handleChange("assignedManagerId", val)}
-            placeholder="Select manager"
-            searchable
-          />
-        </div>
-
-        {/* Assigned Employee */}
-        <div className="mb-3">
-          <Dropdown
-            label="Assigned Employee"
-            options={
-              employees?.map((emp) => ({
-                value: emp.id,
-                label: emp.name,
-              })) || []
-            }
-            value={localFilters.assignedEmployeeId || ""}
-            onChange={(val) => handleChange("assignedEmployeeId", val)}
-            placeholder="Select employee"
-            searchable
-          />
-        </div>
+            {/* Assigned Employee */}
+            <div className="mb-3">
+              <Dropdown
+                label="Assigned Employee"
+                options={
+                  employees?.map((emp) => ({
+                    value: emp.id,
+                    label: emp.name,
+                  })) || []
+                }
+                value={localFilters.assignedEmployeeId || ""}
+                onChange={(val) => handleChange("assignedEmployeeId", val)}
+                placeholder="Select employee"
+                searchable
+              />
+            </div>
+          </>
+        )}
 
         {/* Created From */}
         <div className="mb-3">
@@ -195,8 +200,8 @@ export default function FilterModal({
           />
         </div>
 
-        {/* Show My Orders Checkbox - Admin Only */}
-        {role === "Administrator" && (
+        {/* Show My Orders Checkbox - Admin/Manager/ReadOnlyManager Only */}
+        {!isEmployee && (
           <div className="mb-4">
             <Checkbox
               id="showMyOrders"

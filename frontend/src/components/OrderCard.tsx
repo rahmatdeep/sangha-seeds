@@ -14,11 +14,9 @@ import { useToast } from "../hooks/toastContext";
 
 export default function OrderCard({
   order,
-  token,
   onStatusChange,
 }: {
   order: MyOrdersResponseOrder;
-  token: string;
   onStatusChange?: () => void;
 }) {
   const { showSuccess, showError } = useToast();
@@ -39,7 +37,7 @@ export default function OrderCard({
   const handleAcknowledge = async () => {
     setLoading(true);
     try {
-      await acknowledgeOrder(order.id, token);
+      await acknowledgeOrder(order.id);
       showSuccess("Order acknowledged successfully!");
       if (onStatusChange) onStatusChange();
     } catch {
@@ -52,7 +50,7 @@ export default function OrderCard({
   const handleComplete = async () => {
     setLoading(true);
     try {
-      await completeOrder(order.id, token);
+      await completeOrder(order.id);
       showSuccess("Order completed successfully!");
       if (onStatusChange) onStatusChange();
     } catch {
