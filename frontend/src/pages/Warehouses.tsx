@@ -2,19 +2,31 @@ import { useEffect, useState } from "react";
 import { fetchWarehouses } from "../api";
 import { theme } from "../theme";
 import type { Warehouse } from "../types";
-import { FaWarehouse } from "react-icons/fa";
+import { FaWarehouse, FaFilter } from "react-icons/fa";
 import { IoStorefrontOutline } from "react-icons/io5";
 import WarehouseCard from "../components/WarehouseCard";
+import { useNavigate } from "react-router-dom";
 
 export default function Warehouses() {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showFilter, setShowFilter] = useState(false);
+  const [filters, setFilters] = useState<Record<string, any>>({});
   const token = localStorage.getItem("token") || "";
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const role = user.role;
+  const navigate = useNavigate();
+
+  const isAdmin =
+    role === "Administrator" ||
+    role === "Manager" ||
+    role === "ReadOnlyManager";
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
+        // You can pass filters to fetchWarehouses if supported
         const data = await fetchWarehouses(token);
         setWarehouses(data);
       } catch {
@@ -27,19 +39,90 @@ export default function Warehouses() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <FaWarehouse
-          className="text-3xl"
-          style={{ color: theme.colors.secondary }}
-        />
-        <h2
-          className="text-3xl font-bold"
-          style={{ color: theme.colors.primary }}
-        >
-          Warehouses
-        </h2>
+      {/* Header Section */}
+      <div className="flex items-center justify-between gap-3 mb-6">
+        <div className="flex items-center gap-3">
+          <FaWarehouse
+            className="text-2xl"
+            style={{ color: theme.colors.secondary }}
+          />
+          <h2
+            className="text-2xl font-bold"
+            style={{ color: theme.colors.primary }}
+          >
+            Warehouses
+          </h2>
+        </div>
+        <div className="flex gap-2">
+          <button
+            className="relative px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5"
+            style={{
+              backgroundColor: theme.colors.accent,
+              color: theme.colors.surface,
+              borderRadius: theme.borderRadius.lg,
+            }}
+            onClick={() => setShowFilter(true)}
+          >
+            <FaFilter />
+            <span className="hidden sm:inline">Filter</span>
+            {/* Add filter count badge if you implement filters */}
+            {Object.keys(filters).length > 0 && (
+              <span
+                className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center"
+                style={{
+                  background: theme.colors.warning,
+                  color: theme.colors.surface,
+                }}
+              >
+                {Object.keys(filters).length}
+              </span>
+            )}
+          </button>
+          {isAdmin && (
+            <button
+              className="px-4 py-2 rounded-lg font-semibold transition-all hover:opacity-90 active:scale-95 flex items-center gap-1.5 whitespace-nowrap"
+              style={{
+                backgroundColor: theme.colors.secondary,
+                color: theme.colors.surface,
+                borderRadius: theme.borderRadius.lg,
+              }}
+              onClick={() => navigate("/warehouses/create")}
+            >
+              <span className="text-lg font-bold" style={{ lineHeight: 1 }}>
+                +
+              </span>
+              <span className="hidden sm:inline">Create Warehouse</span>
+              <span className="sm:hidden">Create</span>
+            </button>
+          )}
+        </div>
       </div>
+
+      {/* Filter Modal (implement if needed) */}
+      {showFilter && (
+        <div>
+          {/* Replace with your FilterModal for warehouses */}
+          <div
+            className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
+            onClick={() => setShowFilter(false)}
+          >
+            <div
+              className="bg-white rounded-lg p-6 shadow-lg"
+              style={{ minWidth: 300 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 className="text-lg font-bold mb-4">Filter Warehouses</h3>
+              {/* Add filter fields here */}
+              <button
+                className="mt-4 px-4 py-2 rounded bg-blue-600 text-white"
+                onClick={() => setShowFilter(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Loading State */}
       {loading ? (
