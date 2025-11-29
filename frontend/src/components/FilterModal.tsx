@@ -30,7 +30,6 @@ export default function FilterModal({
   role,
 }: FilterModalProps) {
   const [localFilters, setLocalFilters] = useState(filters);
-  // Only show for admin
   const [showMyOrders, setShowMyOrders] = useState(
     filters.showMyOrders || false
   );
@@ -44,10 +43,17 @@ export default function FilterModal({
     onClose();
   };
 
+  const handleClear = () => {
+    setLocalFilters({});
+    setShowMyOrders(false);
+    setFilters({});
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm">
       <div
-        className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm"
+        className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto"
         style={{
           background: theme.colors.surface,
           borderRadius: theme.borderRadius.lg,
@@ -70,6 +76,7 @@ export default function FilterModal({
             <IoClose />
           </button>
         </div>
+
         {/* Show My Orders Checkbox - Admin Only */}
         {role === "Administrator" && (
           <div className="mb-4">
@@ -96,6 +103,7 @@ export default function FilterModal({
             placeholder="Select status"
           />
         </div>
+
         <div className="mb-3">
           <label
             className="block text-sm font-semibold mb-1"
@@ -114,6 +122,7 @@ export default function FilterModal({
             searchable
           />
         </div>
+
         <div className="mb-3">
           <label
             className="block text-sm font-semibold mb-1"
@@ -132,6 +141,7 @@ export default function FilterModal({
             searchable
           />
         </div>
+
         <div className="mb-3">
           <label
             className="block text-sm font-semibold mb-1"
@@ -145,6 +155,7 @@ export default function FilterModal({
             max={localFilters.createdTo || undefined}
           />
         </div>
+
         <div className="mb-3">
           <label
             className="block text-sm font-semibold mb-1"
@@ -158,6 +169,7 @@ export default function FilterModal({
             min={localFilters.createdFrom || undefined}
           />
         </div>
+
         <div className="flex gap-2 mt-4">
           <button
             className="flex-1 py-2 rounded"
@@ -167,12 +179,7 @@ export default function FilterModal({
               fontWeight: 600,
               borderRadius: theme.borderRadius.md,
             }}
-            onClick={() => {
-              setLocalFilters({});
-              setShowMyOrders(false);
-              setFilters({});
-              onClose();
-            }}
+            onClick={handleClear}
             type="button"
           >
             Clear

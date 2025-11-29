@@ -18,7 +18,7 @@ export default function Orders() {
   const [orders, setOrders] = useState<MyOrdersResponseOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
-  const [filters, setFilters] = useState({});
+  const [filters, setFilters] = useState<Record<string, any>>({});
   const token = localStorage.getItem("token") || "";
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -29,20 +29,25 @@ export default function Orders() {
   const [managers, setManagers] = useState([]);
 
   // Load orders with filters
-  const loadOrders = async (filterParams) => {
+  const loadOrders = async (filterParams: Record<string, any>) => {
     setLoading(true);
     try {
-      let data;
-      const { createdFrom, createdTo } = toISODateRange(
-        filterParams.createdFrom,
-        filterParams.createdTo
-      );
-      // Remove showMyOrders from apiFilters
-      const { showMyOrders, ...restFilters } = filterParams; // only add date filters if they exist
-      const apiFilters = { ...restFilters };
-      if (createdFrom) apiFilters.createdFrom = createdFrom;
-      if (createdTo) apiFilters.createdTo = createdTo;
+      // Extract showMyOrders before processing
+      const { showMyOrders, createdFrom, createdTo, ...restFilters } =
+        filterParams;
 
+      // Convert YYYY-MM-DD dates to ISO datetime strings
+      const { createdFrom: isoFrom, createdTo: isoTo } = toISODateRange(
+        createdFrom,
+        createdTo
+      );
+
+      // Build API filters
+      const apiFilters: Record<string, any> = { ...restFilters };
+      if (isoFrom) apiFilters.createdFrom = isoFrom;
+      if (isoTo) apiFilters.createdTo = isoTo;
+
+      let data;
       if (role === "Administrator" && showMyOrders) {
         data = await fetchMyOrders(token, apiFilters);
       } else if (role === "Administrator") {
@@ -51,12 +56,11 @@ export default function Orders() {
         data = await fetchMyOrders(token, apiFilters);
       }
       setOrders(data);
-    } catch {
-      // handle error
+    } catch (error) {
+      console.error("Error loading orders:", error);
     }
     setLoading(false);
   };
-
 
   useEffect(() => {
     loadOrders(filters);
@@ -65,10 +69,14 @@ export default function Orders() {
 
   useEffect(() => {
     async function fetchData() {
-      setLots(await fetchLots(token));
-      setWarehouses(await fetchWarehouses(token));
-      setEmployees(await fetchUsersByRole("Employee", token));
-      setManagers(await fetchUsersByRole("Manager", token));
+      try {
+        setLots(await fetchLots(token));
+        setWarehouses(await fetchWarehouses(token));
+        setEmployees(await fetchUsersByRole("Employee", token));
+        setManagers(await fetchUsersByRole("Manager", token));
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     }
     fetchData();
   }, [token]);
@@ -95,16 +103,20 @@ export default function Orders() {
           >
             <FaFilter />
             <span className="hidden sm:inline">Filter</span>
-            {/* Active Filter Badge */}
-
-            {Object.keys(filters).length > 0 && (
+            {Object.keys(filters).filter((k) => k !== "showMyOrders").length >
+              0 && (
               <span
-                className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center"
                 style={{
                   background: theme.colors.warning,
                   color: theme.colors.surface,
                 }}
-              ></span>
+              >
+                {
+                  Object.keys(filters).filter((k) => k !== "showMyOrders")
+                    .length
+                }
+              </span>
             )}
           </button>
           {role === "Administrator" && (
