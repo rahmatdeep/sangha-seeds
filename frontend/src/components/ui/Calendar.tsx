@@ -193,7 +193,7 @@ export default function Calendar({
         </button>
         {isOpen && !disabled && (
           <div
-            className="absolute left-0 right-0 mx-auto z-50 mt-2 w-full max-w-xs rounded-xl border shadow-lg p-4"
+            className="absolute left-0 right-0 mx-auto mt-2 w-full max-w-xs rounded-xl border shadow-lg p-4 z-100"
             style={{
               background: theme.colors.surface,
               borderColor: theme.colors.accent,

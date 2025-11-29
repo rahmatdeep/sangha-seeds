@@ -53,7 +53,7 @@ export default function FilterModal({
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm">
       <div
-        className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm max-h-[90vh]"
         style={{
           background: theme.colors.surface,
           borderRadius: theme.borderRadius.lg,
