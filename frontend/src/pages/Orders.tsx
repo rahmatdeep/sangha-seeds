@@ -14,7 +14,6 @@ import { theme } from "../theme";
 import { FaClipboardList, FaFilter } from "react-icons/fa";
 import FilterModal from "../components/FilterModal";
 import { toISODateRange } from "../utils/date";
-import { is } from "zod/locales";
 
 export default function Orders() {
   const [orders, setOrders] = useState<MyOrdersResponseOrder[]>([]);

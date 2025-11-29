@@ -19,7 +19,7 @@ export default function Auth() {
     try {
       const token = await login(email, password);
       localStorage.setItem("token", token);
-      const user = await getUser(token);
+      const user = await getUser();
       localStorage.setItem("user", JSON.stringify(user));
       navigate("/");
     } catch (err: unknown) {

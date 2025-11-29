@@ -24,7 +24,6 @@ interface FormErrors {
 export default function CreateOrder() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
-  const token = localStorage.getItem("token") || "";
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const role = user.role;
 
@@ -135,26 +134,23 @@ export default function CreateOrder() {
 
     try {
       // Create order
-      const res = await createOrder(
-        {
-          lotId,
-          warehouseId,
-          quantity: Number(quantity),
-          destination,
-          remarks,
-          createdById: user.id,
-          status: "placed",
-          isComplete: false,
-          isAcknowledged: false,
-          assignedManagerId: assignedManager,
-        },
-        token
-      );
+      const res = await createOrder({
+        lotId,
+        warehouseId,
+        quantity: Number(quantity),
+        destination,
+        remarks,
+        createdById: user.id,
+        status: "placed",
+        isComplete: false,
+        isAcknowledged: false,
+        assignedManagerId: assignedManager,
+      });
       const orderId = res.message;
 
       // Assign employees
       for (const employeeId of assignedEmployees) {
-        await assignEmployee(orderId, employeeId, token);
+        await assignEmployee(orderId, employeeId);
       }
 
       showSuccess("Order created and assignments done!");

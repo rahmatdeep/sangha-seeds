@@ -166,7 +166,6 @@ function getDateRangeDisplay(
 }
 
 export default function Dashboard() {
-  const token = localStorage.getItem("token") || "";
   const [placed, setPlaced] = useState([]);
   const [acknowledged, setAcknowledged] = useState([]);
   const [completed, setCompleted] = useState([]);
@@ -186,13 +185,13 @@ export default function Dashboard() {
 
       try {
         const [placedRes, ackRes, compRes] = await Promise.all([
-          fetchMyOrders(token, { type: "created", createdFrom, createdTo }),
-          fetchMyOrders(token, {
+          fetchMyOrders({ type: "created", createdFrom, createdTo }),
+          fetchMyOrders({
             type: "acknowledged",
             createdFrom,
             createdTo,
           }),
-          fetchMyOrders(token, { type: "completed", createdFrom, createdTo }),
+          fetchMyOrders({ type: "completed", createdFrom, createdTo }),
         ]);
         setPlaced(placedRes);
         setAcknowledged(ackRes);
@@ -206,7 +205,7 @@ export default function Dashboard() {
 
     // For custom range, fetch even with just one date selected
     fetchData();
-  }, [token, range, customFrom, customTo]);
+  }, [range, customFrom, customTo]);
 
   return (
     <div
