@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { theme } from "../theme";
 import axios from "axios";
-import { assignEmployee, assignManager, createOrder } from "../api";
+import { assignEmployee, createOrder } from "../api";
 import type { Lot, Warehouse, User } from "../types";
 import Input from "../components/ui/Input";
 import NumberInput from "../components/ui/NumberInput";
@@ -47,6 +47,47 @@ export default function CreateOrder() {
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Auto-populate manager and employees when warehouse is selected
+  const handleWarehouseChange = (val: string) => {
+    setWarehouseId(val);
+    setTouched((prev) => ({ ...prev, warehouseId: true }));
+
+    if (val) {
+      // Clear warehouse error
+      const errors = { ...formErrors };
+      delete errors.warehouseId;
+      setFormErrors(errors);
+
+      // Auto-populate manager and employees
+      const selectedWarehouse = warehouses.find(
+        (wh: Warehouse) => wh.id === val
+      );
+
+      if (selectedWarehouse) {
+        // Set assigned manager if warehouse has one
+        if (selectedWarehouse.assignedManagerId) {
+          setAssignedManager(selectedWarehouse.assignedManagerId);
+        } else {
+          setAssignedManager(""); // Clear if no manager assigned
+        }
+
+        // Set assigned employees if warehouse has any
+        if (selectedWarehouse.assignedEmployees?.length > 0) {
+          const employeeIds = selectedWarehouse.assignedEmployees.map(
+            (emp: User) => emp.id
+          );
+          setAssignedEmployees(employeeIds);
+        } else {
+          setAssignedEmployees([]); // Clear if no employees assigned
+        }
+      }
+    } else {
+      // Clear selections if warehouse is cleared
+      setAssignedManager("");
+      setAssignedEmployees([]);
+    }
+  };
 
   // Validation function
   const validateForm = (): boolean => {
@@ -111,7 +152,6 @@ export default function CreateOrder() {
       );
       const orderId = res.message;
 
-
       // Assign employees
       for (const employeeId of assignedEmployees) {
         await assignEmployee(orderId, employeeId, token);
@@ -174,15 +214,7 @@ export default function CreateOrder() {
           label="Warehouse"
           required
           value={warehouseId}
-          onChange={(val) => {
-            setWarehouseId(val);
-            setTouched((prev) => ({ ...prev, warehouseId: true }));
-            if (val) {
-              const errors = { ...formErrors };
-              delete errors.warehouseId;
-              setFormErrors(errors);
-            }
-          }}
+          onChange={handleWarehouseChange}
           options={warehouses.map((wh: Warehouse) => ({
             value: wh.id,
             label: wh.name,
@@ -261,32 +293,6 @@ export default function CreateOrder() {
           rows={3}
           placeholder="Add any remarks (optional)"
         />
-
-        {/* {error && (
-          <div
-            className="text-sm font-medium px-3 py-2 rounded"
-            style={{
-              color: theme.colors.error,
-              backgroundColor: theme.colors.error + "15",
-              border: `1px solid ${theme.colors.error}40`,
-            }}
-          >
-            {error}
-          </div>
-        )}
-
-        {success && (
-          <div
-            className="text-sm font-medium px-3 py-2 rounded"
-            style={{
-              color: theme.colors.success,
-              backgroundColor: theme.colors.success + "15",
-              border: `1px solid ${theme.colors.success}40`,
-            }}
-          >
-            {success}
-          </div>
-        )} */}
 
         <button
           type="submit"
