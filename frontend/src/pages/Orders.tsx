@@ -11,7 +11,7 @@ import OrderCard from "../components/OrderCard";
 import type { MyOrdersResponseOrder } from "../types";
 import { useNavigate } from "react-router-dom";
 import { theme } from "../theme";
-import { FaClipboardList, FaFilter } from "react-icons/fa";
+import { FaBoxOpen, FaClipboardList, FaFilter } from "react-icons/fa";
 import FilterModal from "../components/FilterModal";
 import { toISODateRange } from "../utils/date";
 
@@ -34,6 +34,11 @@ export default function Orders() {
     role === "Administrator" ||
     role === "Manager" ||
     role === "ReadOnlyManager";
+
+  const showMyOrders =
+    isEmployee || (isAdminOrManager && filters.showMyOrders === true);
+
+  const ordersTitle = showMyOrders ? "My Orders" : "All Orders";
 
   // Load orders with filters
   const loadOrders = useCallback(
@@ -97,12 +102,19 @@ export default function Orders() {
     <div className="max-w-5xl mx-auto px-4 py-6">
       {/* Header Section */}
       <div className="flex items-center justify-between gap-3 mb-6">
-        <h2
-          className="text-2xl font-bold"
-          style={{ color: theme.colors.primary }}
-        >
-          {role === "Administrator" ? "All Orders" : "My Orders"}
-        </h2>
+        <div className="flex items-center gap-3">
+          <FaBoxOpen
+            className="text-2xl"
+            style={{ color: theme.colors.secondary }}
+          />
+
+          <h2
+            className="text-2xl font-bold"
+            style={{ color: theme.colors.primary }}
+          >
+            {ordersTitle}
+          </h2>
+        </div>
         <div className="flex gap-2">
           <button
             className="relative px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5"
