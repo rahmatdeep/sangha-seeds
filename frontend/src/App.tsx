@@ -7,9 +7,9 @@ import ProfilePage from "./pages/ProfilePage";
 import CreateOrder from "./pages/CreateOrder";
 import { ToastProvider } from "./components/ui/ToastProvider";
 import Dashboard from "./pages/Dashboard";
+import Warehouses from "./pages/Warehouses";
 
 // Dummy pages for demonstration
-
 
 function OrderDetails() {
   return <div>Order Details Page</div>;
@@ -28,6 +28,7 @@ function App() {
               <Route path="/orders/create" element={<CreateOrder />} />
               <Route path="/orders/:id" element={<OrderDetails />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/warehouses" element={<Warehouses />} />
             </Route>
           </Route>
         </Routes>
