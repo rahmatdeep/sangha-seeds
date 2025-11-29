@@ -112,3 +112,11 @@ export async function getUser(token: string) {
   });
   return res.data.user;
 }
+
+// varieties
+export async function fetchVarieties(token: string) {
+  const res = await axios.get(`${API_BASE_URL}/variety/`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data.varieties || res.data;
+}

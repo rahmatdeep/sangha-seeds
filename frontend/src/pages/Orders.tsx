@@ -5,6 +5,7 @@ import {
   fetchLots,
   fetchWarehouses,
   fetchUsersByRole,
+  fetchVarieties,
 } from "../api";
 import OrderCard from "../components/OrderCard";
 import type { MyOrdersResponseOrder } from "../types";
@@ -27,6 +28,7 @@ export default function Orders() {
   const [warehouses, setWarehouses] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [managers, setManagers] = useState([]);
+  const [varieties, setVarieties] = useState([]);
 
   // Load orders with filters
   const loadOrders = async (filterParams: Record<string, any>) => {
@@ -74,6 +76,7 @@ export default function Orders() {
         setWarehouses(await fetchWarehouses(token));
         setEmployees(await fetchUsersByRole("Employee", token));
         setManagers(await fetchUsersByRole("Manager", token));
+        setVarieties(await fetchVarieties(token));
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -150,6 +153,9 @@ export default function Orders() {
           onClose={() => setShowFilter(false)}
           lots={lots}
           warehouses={warehouses}
+          managers={managers}
+          employees={employees}
+          varieties={varieties}
           role={role}
         />
       )}

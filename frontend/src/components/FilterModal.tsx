@@ -2,7 +2,7 @@ import { useState } from "react";
 import { theme } from "../theme";
 import Dropdown from "./ui/Dropdown";
 import Calendar from "./ui/Calendar";
-import type { Lot, Warehouse } from "../types";
+import type { Lot, User, Variety, Warehouse } from "../types";
 import { IoClose } from "react-icons/io5";
 import Checkbox from "./ui/Checkbox";
 
@@ -12,6 +12,9 @@ interface FilterModalProps {
   onClose: () => void;
   lots?: Lot[];
   warehouses?: Warehouse[];
+  managers?: User[];
+  employees?: User[];
+  varieties?: Variety[];
   role: string;
 }
 
@@ -27,6 +30,9 @@ export default function FilterModal({
   onClose,
   lots = [],
   warehouses = [],
+  managers = [],
+  employees = [],
+  varieties = [],
   role,
 }: FilterModalProps) {
   const [localFilters, setLocalFilters] = useState(filters);
@@ -77,6 +83,118 @@ export default function FilterModal({
           </button>
         </div>
 
+        {/* Status */}
+        <div className="mb-3">
+          <Dropdown
+            label="Status"
+            options={statusOptions}
+            value={localFilters.status || ""}
+            onChange={(val) => handleChange("status", val)}
+            placeholder="Select status"
+          />
+        </div>
+
+        {/* Warehouse */}
+        <div className="mb-3">
+          <Dropdown
+            label="Warehouse"
+            options={warehouses.map((wh: Warehouse) => ({
+              value: wh.id,
+              label: wh.name,
+            }))}
+            value={localFilters.warehouseId || ""}
+            onChange={(val) => handleChange("warehouseId", val)}
+            placeholder="Select warehouse"
+            searchable
+          />
+        </div>
+
+        {/* Lot*/}
+        <div className="mb-3">
+          <Dropdown
+            label="Lot"
+            options={lots.map((lot: Lot) => ({
+              value: lot.id,
+              label: lot.lotNo,
+            }))}
+            value={localFilters.lotId || ""}
+            onChange={(val) => handleChange("lotId", val)}
+            placeholder="Select lot"
+            searchable
+          />
+        </div>
+
+        {/* Variety */}
+        <div className="mb-3">
+          <Dropdown
+            label="Variety"
+            options={
+              varieties?.map((variety) => ({
+                value: variety.id,
+                label: variety.name,
+              })) || []
+            }
+            value={localFilters.varietyId || ""}
+            onChange={(val) => handleChange("varietyId", val)}
+            placeholder="Select variety"
+            searchable
+          />
+        </div>
+
+        {/* Assigned Manager */}
+        <div className="mb-3">
+          <Dropdown
+            label="Assigned Manager"
+            options={
+              managers?.map((mgr) => ({
+                value: mgr.id,
+                label: mgr.name,
+              })) || []
+            }
+            value={localFilters.assignedManagerId || ""}
+            onChange={(val) => handleChange("assignedManagerId", val)}
+            placeholder="Select manager"
+            searchable
+          />
+        </div>
+
+        {/* Assigned Employee */}
+        <div className="mb-3">
+          <Dropdown
+            label="Assigned Employee"
+            options={
+              employees?.map((emp) => ({
+                value: emp.id,
+                label: emp.name,
+              })) || []
+            }
+            value={localFilters.assignedEmployeeId || ""}
+            onChange={(val) => handleChange("assignedEmployeeId", val)}
+            placeholder="Select employee"
+            searchable
+          />
+        </div>
+
+        {/* Created From */}
+        <div className="mb-3">
+          <Calendar
+            label="Created From"
+            value={localFilters.createdFrom || ""}
+            onChange={(val) => handleChange("createdFrom", val)}
+            max={localFilters.createdTo || undefined}
+          />
+        </div>
+
+        {/* Created To */}
+        <div className="mb-3">
+          <Calendar
+            label="Created To"
+            value={localFilters.createdTo || ""}
+            onChange={(val) => handleChange("createdTo", val)}
+            min={localFilters.createdFrom || undefined}
+          />
+        </div>
+
         {/* Show My Orders Checkbox - Admin Only */}
         {role === "Administrator" && (
           <div className="mb-4">
@@ -89,77 +207,7 @@ export default function FilterModal({
           </div>
         )}
 
-        <div className="mb-3">
-          <label
-            className="block text-sm font-semibold mb-1"
-            style={{ color: theme.colors.primary }}
-          >
-            Status
-          </label>
-          <Dropdown
-            options={statusOptions}
-            value={localFilters.status || ""}
-            onChange={(val) => handleChange("status", val)}
-            placeholder="Select status"
-          />
-        </div>
-
-        <div className="mb-3">
-          <label
-            className="block text-sm font-semibold mb-1"
-            style={{ color: theme.colors.primary }}
-          >
-            Warehouse
-          </label>
-          <Dropdown
-            options={warehouses.map((wh: Warehouse) => ({
-              value: wh.id,
-              label: wh.name,
-            }))}
-            value={localFilters.warehouseId || ""}
-            onChange={(val) => handleChange("warehouseId", val)}
-            placeholder="Select warehouse"
-            searchable
-          />
-        </div>
-
-        <div className="mb-3">
-          <label
-            className="block text-sm font-semibold mb-1"
-            style={{ color: theme.colors.primary }}
-          >
-            Lot ID
-          </label>
-          <Dropdown
-            options={lots.map((lot: Lot) => ({
-              value: lot.id,
-              label: lot.lotNo,
-            }))}
-            value={localFilters.lotId || ""}
-            onChange={(val) => handleChange("lotId", val)}
-            placeholder="Select lot"
-            searchable
-          />
-        </div>
-
-        <div className="mb-3">
-          <Calendar
-            label="Created From"
-            value={localFilters.createdFrom || ""}
-            onChange={(val) => handleChange("createdFrom", val)}
-            max={localFilters.createdTo || undefined}
-          />
-        </div>
-
-        <div className="mb-3">
-          <Calendar
-            label="Created To"
-            value={localFilters.createdTo || ""}
-            onChange={(val) => handleChange("createdTo", val)}
-            min={localFilters.createdFrom || undefined}
-          />
-        </div>
-
+        {/* Action Buttons */}
         <div className="flex gap-2 mt-4">
           <button
             className="flex-1 py-2 rounded"
