@@ -143,13 +143,8 @@ export default function FilterModal({
         </div>
 
         <div className="mb-3">
-          <label
-            className="block text-sm font-semibold mb-1"
-            style={{ color: theme.colors.primary }}
-          >
-            Created From
-          </label>
           <Calendar
+            label="Created From"
             value={localFilters.createdFrom || ""}
             onChange={(val) => handleChange("createdFrom", val)}
             max={localFilters.createdTo || undefined}
@@ -157,13 +152,8 @@ export default function FilterModal({
         </div>
 
         <div className="mb-3">
-          <label
-            className="block text-sm font-semibold mb-1"
-            style={{ color: theme.colors.primary }}
-          >
-            Created To
-          </label>
           <Calendar
+            label="Created To"
             value={localFilters.createdTo || ""}
             onChange={(val) => handleChange("createdTo", val)}
             min={localFilters.createdFrom || undefined}

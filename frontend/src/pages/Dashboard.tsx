@@ -258,26 +258,16 @@ export default function Dashboard() {
             >
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
-                  <label
-                    className="block text-xs font-semibold uppercase tracking-wide mb-2 opacity-60"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    From Date (optional)
-                  </label>
                   <Calendar
+                    label="From Date (optional)"
                     value={customFrom}
                     onChange={setCustomFrom}
                     max={customTo || undefined}
                   />
                 </div>
                 <div className="flex-1">
-                  <label
-                    className="block text-xs font-semibold uppercase tracking-wide mb-2 opacity-60"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    To Date (optional)
-                  </label>
                   <Calendar
+                    label="To Date (optional)"
                     value={customTo}
                     onChange={setCustomTo}
                     min={customFrom || undefined}
