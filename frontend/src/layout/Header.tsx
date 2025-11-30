@@ -1,7 +1,9 @@
+import { useNavigate } from "react-router-dom";
 import { theme } from "../theme";
 import { FaSeedling, FaBell, FaSearch } from "react-icons/fa";
 
 export default function Header() {
+  const navigate = useNavigate();
   const handleSearchClick = () => {
     // TODO: Open advanced search modal
   };
@@ -20,7 +22,10 @@ export default function Header() {
       }}
     >
       {/* Logo Section */}
-      <div className="flex items-center gap-2 group cursor-pointer">
+      <div
+        className="flex items-center gap-2 group cursor-pointer"
+        onClick={() => navigate("/")}
+      >
         <div
           className="p-2 rounded-lg transition-all duration-300 group-hover:scale-110"
           style={{ background: `${theme.colors.accent}80` }}
