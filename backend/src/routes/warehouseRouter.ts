@@ -6,7 +6,7 @@ import {
 } from "../middleware";
 import { prisma } from "../lib/prisma";
 import z from "zod";
-import { WarehouseCreateSchema } from "../lib/types";
+import { WarehouseCreateSchema, WarehouseQuerySchema } from "../lib/types";
 
 const router = Router();
 
@@ -66,15 +66,83 @@ router.post(
 
 router.get("/", authmiddleware, async (req: Request, res: Response) => {
   try {
-    const warehouses = await prisma.warehouse.findMany({
+    const validatedQuery = WarehouseQuerySchema.safeParse(req.query);
+    if (!validatedQuery.success) {
+      return res.status(400).json({ message: "Invalid query parameters" });
+    }
+    const {
+      location,
+      search,
+      hasCapacity,
+      page = "1",
+      limit = "10",
+      sortBy = "name",
+      order = "asc",
+    } = validatedQuery.data;
+
+    const whereClause: any = {};
+
+    if (location) {
+      whereClause.location = { contains: location, mode: "insensitive" };
+    }
+
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { location: { contains: search, mode: "insensitive" } },
+      ];
+    }
+
+    // Pagination
+    const take = parseInt(limit, 10);
+    const skip = (parseInt(page, 10) - 1) * take;
+
+    // Sorting
+    const orderBy: any = {};
+    orderBy[sortBy] = order;
+
+    // Query warehouses
+    let warehouses = await prisma.warehouse.findMany({
+      where: whereClause,
       include: {
         assignedEmployees: true,
+        assignedManager: true,
         lots: true,
         orders: true,
       },
-      orderBy: { name: "asc"},
-      
+      orderBy,
+      skip,
+      take,
     });
+
+    // Filter by hasCapacity if requested
+    if (hasCapacity === "true") {
+      warehouses = warehouses.filter((wh) => {
+        // maxStorageCapacity may be string or null
+        const maxCap = wh.maxStorageCapacity
+          ? Number(wh.maxStorageCapacity)
+          : null;
+        if (!maxCap || !wh.lots || wh.lots.length === 0) return true;
+        const totalQty = wh.lots.reduce(
+          (sum, lot) => sum + (lot.quantity || 0),
+          0
+        );
+        return totalQty < maxCap;
+      });
+    } else if (hasCapacity === "false") {
+      warehouses = warehouses.filter((wh) => {
+        const maxCap = wh.maxStorageCapacity
+          ? Number(wh.maxStorageCapacity)
+          : null;
+        if (!maxCap || !wh.lots || wh.lots.length === 0) return false;
+        const totalQty = wh.lots.reduce(
+          (sum, lot) => sum + (lot.quantity || 0),
+          0
+        );
+        return totalQty >= maxCap;
+      });
+    }
+
     return res.status(200).json({ warehouses });
   } catch (error) {
     return res.status(500).json({ message: "Internal server error" });

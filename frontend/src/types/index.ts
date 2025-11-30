@@ -442,3 +442,15 @@ export type MyOrdersResponseOrder = Order & {
 export type MyOrdersResponse = {
   orders: MyOrdersResponseOrder[];
 };
+
+export type WarehouseResponse = Warehouse & {
+  assignedEmployees: User[];
+  assignedManager: User | null;
+  lots: Lot[];
+  orders: Order[];
+};
+
+export type WarehousesResponse = {
+  warehouses: WarehouseResponse[];
+};
+    

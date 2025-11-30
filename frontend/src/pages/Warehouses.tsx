@@ -6,28 +6,22 @@ import { FaWarehouse, FaFilter } from "react-icons/fa";
 import { IoStorefrontOutline } from "react-icons/io5";
 import WarehouseCard from "../components/WarehouseCard";
 import { useNavigate } from "react-router-dom";
+import FilterModal from "../components/FilterModal";
 
 export default function Warehouses() {
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState<Record<string, any>>({});
-  const token = localStorage.getItem("token") || "";
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const role = user.role;
   const navigate = useNavigate();
-
-  const isAdmin =
-    role === "Administrator" ||
-    role === "Manager" ||
-    role === "ReadOnlyManager";
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        // You can pass filters to fetchWarehouses if supported
-        const data = await fetchWarehouses(token);
+        const data = await fetchWarehouses(filters);
         setWarehouses(data);
       } catch {
         // handle error
@@ -35,8 +29,7 @@ export default function Warehouses() {
       setLoading(false);
     }
     load();
-  }, [token]);
-
+  }, [filters]);
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
       {/* Header Section */}
@@ -78,7 +71,7 @@ export default function Warehouses() {
               </span>
             )}
           </button>
-          {isAdmin && (
+          {role === "Administrator" && (
             <button
               className="px-4 py-2 rounded-lg font-semibold transition-all hover:opacity-90 active:scale-95 flex items-center gap-1.5 whitespace-nowrap"
               style={{
@@ -98,32 +91,16 @@ export default function Warehouses() {
         </div>
       </div>
 
-      {/* Filter Modal (implement if needed) */}
+      {/* Filter Modal */}
       {showFilter && (
-        <div>
-          {/* Replace with your FilterModal for warehouses */}
-          <div
-            className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50"
-            onClick={() => setShowFilter(false)}
-          >
-            <div
-              className="bg-white rounded-lg p-6 shadow-lg"
-              style={{ minWidth: 300 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3 className="text-lg font-bold mb-4">Filter Warehouses</h3>
-              {/* Add filter fields here */}
-              <button
-                className="mt-4 px-4 py-2 rounded bg-blue-600 text-white"
-                onClick={() => setShowFilter(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
+        <FilterModal
+          filters={filters}
+          setFilters={setFilters}
+          onClose={() => setShowFilter(false)}
+          role={role}
+          type="warehouses"
+        />
       )}
-
       {/* Loading State */}
       {loading ? (
         <div className="space-y-4">

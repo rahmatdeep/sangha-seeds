@@ -178,6 +178,7 @@ export default function Orders() {
           employees={isEmployee ? [] : employees}
           varieties={isEmployee ? [] : varieties}
           role={role}
+          type="orders"
         />
       )}
 

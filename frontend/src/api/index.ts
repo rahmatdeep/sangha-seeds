@@ -55,8 +55,9 @@ export async function fetchLots() {
 }
 
 // warehouses
-export async function fetchWarehouses() {
-  const res = await api.get("/warehouse/");
+export async function fetchWarehouses(filters = {}) {
+  const params = new URLSearchParams(filters).toString();
+  const res = await api.get(`/warehouse/?${params}`);
   return res.data.warehouses || res.data;
 }
 

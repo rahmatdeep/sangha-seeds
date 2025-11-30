@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { User, Lot, Order } from "../types";
+import type { User, Lot, Order, WarehouseResponse } from "../types";
 import { theme } from "../theme";
 import {
   IoChevronDown,
@@ -11,7 +11,11 @@ import {
   IoLayersOutline,
 } from "react-icons/io5";
 
-export default function WarehouseCard({ warehouse }: { warehouse: any }) {
+export default function WarehouseCard({
+  warehouse,
+}: {
+  warehouse: WarehouseResponse;
+}) {
   const [showCapacity, setShowCapacity] = useState(false);
   const [showTeam, setShowTeam] = useState(false);
   const [showInventory, setShowInventory] = useState(false);
@@ -39,12 +43,12 @@ export default function WarehouseCard({ warehouse }: { warehouse: any }) {
       <div className="p-4">
         <div className="flex justify-between items-start gap-3 mb-3">
           <div className="min-w-0 flex-1">
-              <span
-                className="font-bold text-lg mb-1"
-                style={{ color: theme.colors.primary }}
-              >
-                {warehouse.name}
-              </span>
+            <span
+              className="font-bold text-lg mb-1"
+              style={{ color: theme.colors.primary }}
+            >
+              {warehouse.name}
+            </span>
             <div className="flex items-center gap-1.5 text-sm">
               <IoLocationOutline
                 className="w-4 h-4"
@@ -298,7 +302,7 @@ export default function WarehouseCard({ warehouse }: { warehouse: any }) {
                 style={{ color: theme.colors.primary }}
               >
                 {warehouse.assignedManagerId
-                  ? "Manager assigned"
+                  ? warehouse.assignedManager?.name
                   : "Not assigned"}
               </div>
             </div>
@@ -390,7 +394,7 @@ export default function WarehouseCard({ warehouse }: { warehouse: any }) {
                         style={{ color: theme.colors.primary }}
                       >
                         {lot.lotNo}
-                      </div>
+                    </div>
                       <div
                         className="opacity-60 text-[11px]"
                         style={{ color: theme.colors.primary }}
