@@ -5,6 +5,7 @@ import FilterModal from "../components/FilterModal";
 import type { Lot, Warehouse, Variety } from "../types";
 import { theme } from "../theme";
 import { useNavigate } from "react-router-dom";
+import LotCard from "../components/LotCard";
 
 export default function Lots() {
   const [lots, setLots] = useState<Lot[]>([]);
@@ -51,13 +52,22 @@ export default function Lots() {
   }, [filters]);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.colors.background }}>
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: theme.colors.background }}
+    >
       <div className="mx-auto max-w-5xl px-4 py-4 sm:py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <FaBoxOpen className="text-2xl" style={{ color: theme.colors.secondary }} />
-            <h2 className="text-2xl font-bold" style={{ color: theme.colors.primary }}>
+            <FaBoxOpen
+              className="text-2xl"
+              style={{ color: theme.colors.secondary }}
+            />
+            <h2
+              className="text-2xl font-bold"
+              style={{ color: theme.colors.primary }}
+            >
               Lots
             </h2>
           </div>
@@ -116,12 +126,24 @@ export default function Lots() {
 
         {/* State messages */}
         {loading && (
-          <div className="rounded-lg px-4 py-3 text-sm" style={{ backgroundColor: theme.colors.surface, color: theme.colors.primary }}>
+          <div
+            className="rounded-lg px-4 py-3 text-sm"
+            style={{
+              backgroundColor: theme.colors.surface,
+              color: theme.colors.primary,
+            }}
+          >
             Loading lots…
           </div>
         )}
         {!loading && lots.length === 0 && (
-          <div className="rounded-lg px-4 py-6 text-center text-sm" style={{ backgroundColor: theme.colors.surface, color: theme.colors.primary }}>
+          <div
+            className="rounded-lg px-4 py-6 text-center text-sm"
+            style={{
+              backgroundColor: theme.colors.surface,
+              color: theme.colors.primary,
+            }}
+          >
             No lots found.
           </div>
         )}
@@ -130,32 +152,12 @@ export default function Lots() {
         {!loading && lots.length > 0 && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
             {lots.map((lot) => (
-              <article
+              <LotCard
                 key={lot.id}
-                className="flex items-center gap-3 rounded-2xl border p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4"
-                style={{ backgroundColor: theme.colors.surface, borderColor: theme.colors.accent }}
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base font-semibold sm:h-12 sm:w-12 sm:text-lg"
-                  style={{ background: theme.colors.accent, color: theme.colors.primary }}>
-                  {lot.lotNo?.[0]?.toUpperCase() ?? "L"}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold sm:text-base" style={{ color: theme.colors.primary }}>
-                    {lot.lotNo}
-                  </div>
-                  <div className="truncate text-xs text-gray-600 sm:text-sm">
-                    Quantity: {lot.quantity}
-                  </div>
-                  <div className="truncate text-xs text-gray-600 sm:text-sm">
-                    Size: {lot.size}
-                  </div>
-                  {lot.expiryDate && (
-                    <div className="truncate text-xs text-gray-600 sm:text-sm">
-                      Expiry: {new Date(lot.expiryDate).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
-              </article>
+                lot={lot}
+                variety={varieties.find((v) => v.id === lot.varietyId)}
+                warehouse={warehouses.find((w) => w.id === lot.warehouseId)}
+              />
             ))}
           </div>
         )}
