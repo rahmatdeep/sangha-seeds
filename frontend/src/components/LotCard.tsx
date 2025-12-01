@@ -11,8 +11,14 @@ export default function LotCard({
   variety?: Variety;
   warehouse?: Warehouse;
 }) {
-  const formatDate = (date?: string | null) =>
-    date ? new Date(date).toLocaleDateString() : "N/A";
+  const formatDate = (date: Date | null | undefined) => {
+    if (!date) return "N/A";
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
 
   return (
     <div

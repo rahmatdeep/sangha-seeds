@@ -59,13 +59,19 @@ export default function OrderCard({
       setLoading(false);
     }
   };
-
-  const formatDateTime = (date: Date | null | undefined) => {
+  const formatDateTime = (date: Date | string | null | undefined) => {
     if (!date) return "N/A";
-    return new Date(date).toLocaleString("en-IN", {
-      dateStyle: "short",
-      timeStyle: "short",
+    const d = new Date(date);
+    const dateStr = d.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
+    const timeStr = d.toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `${dateStr} ${timeStr}`;
   };
 
   const getStatusIcon = () => {
