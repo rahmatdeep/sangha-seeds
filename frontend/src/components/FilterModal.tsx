@@ -16,8 +16,8 @@ interface FilterModalProps {
   managers?: User[];
   employees?: User[];
   varieties?: Variety[];
-  role: string;
-  type: "orders" | "warehouses" | "users";
+  role?: string;
+  type: "orders" | "warehouses" | "users" | "varieties";
 }
 
 const statusOptions = [
@@ -280,6 +280,30 @@ export default function FilterModal({
                 value={localFilters.order || "desc"}
                 onChange={(val) => handleChange("order", val)}
                 placeholder="Order"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Variety Filters */}
+        {type === "varieties" && (
+          <>
+            <div className="mb-3">
+              <Input
+                label="Search"
+                placeholder="Search variety name"
+                value={localFilters.search || ""}
+                onChange={(e) => handleChange("search", e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <Checkbox
+                id="hasLots"
+                label="Has available lots"
+                checked={localFilters.hasLots === "true"}
+                onChange={(checked) =>
+                  handleChange("hasLots", checked ? "true" : "false")
+                }
               />
             </div>
           </>

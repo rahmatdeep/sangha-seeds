@@ -11,12 +11,9 @@ import Warehouses from "./pages/Warehouses";
 import CreateWarehouse from "./pages/CreateWarehouse";
 import Users from "./pages/Users";
 import CreateUser from "./pages/CreateUser";
+import Varieties from "./pages/Varities";
+import CreateVariety from "./pages/CreateVariety";
 
-// Dummy pages for demonstration
-
-function OrderDetails() {
-  return <div>Order Details Page</div>;
-}
 
 function App() {
   return (
@@ -29,12 +26,13 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/orders/create" element={<CreateOrder />} />
-              <Route path="/orders/:id" element={<OrderDetails />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/warehouses" element={<Warehouses />} />
               <Route path="/warehouses/create" element={<CreateWarehouse />} />
               <Route path="/users" element={<Users />} />
               <Route path="/users/create" element={<CreateUser />} />
+              <Route path="/varieties" element={<Varieties />} />
+              <Route path="/varieties/create" element={<CreateVariety />} />
             </Route>
           </Route>
         </Routes>

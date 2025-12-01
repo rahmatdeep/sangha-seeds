@@ -104,7 +104,13 @@ export async function fetchUsersByRoleWithFilters(role: string, filters: Record<
   return res.data.users || res.data;
 }
 // varieties
-export async function fetchVarieties() {
-  const res = await api.get("/variety/");
+export async function fetchVarieties(filters = {}) {
+  const params = new URLSearchParams(filters).toString();
+  const res = await api.get(`/variety/?${params}`);
   return res.data.varieties || res.data;
+}
+
+export async function createVariety(varietyData: { name: string }) {
+  const res = await api.post("/variety/", varietyData);
+  return res.data;
 }
