@@ -190,24 +190,26 @@ export default function FilterModal({
               </>
             )}
 
-            {/* Created From */}
-            <div className="mb-3">
-              <Calendar
-                label="Created From"
-                value={localFilters.createdFrom || ""}
-                onChange={(val) => handleChange("createdFrom", val)}
-                max={localFilters.createdTo || undefined}
-              />
-            </div>
+            <div className="flex justify-between gap-2">
+              {/* Created From */}
+              <div className="mb-3 w-full">
+                <Calendar
+                  label="Created From"
+                  value={localFilters.createdFrom || ""}
+                  onChange={(val) => handleChange("createdFrom", val)}
+                  max={localFilters.createdTo || undefined}
+                />
+              </div>
 
-            {/* Created To */}
-            <div className="mb-3">
-              <Calendar
-                label="Created To"
-                value={localFilters.createdTo || ""}
-                onChange={(val) => handleChange("createdTo", val)}
-                min={localFilters.createdFrom || undefined}
-              />
+              {/* Created To */}
+              <div className="mb-3 w-full">
+                <Calendar
+                  label="Created To"
+                  value={localFilters.createdTo || ""}
+                  onChange={(val) => handleChange("createdTo", val)}
+                  min={localFilters.createdFrom || undefined}
+                />
+              </div>
             </div>
 
             {/* Show My Orders Checkbox - Admin/Manager/ReadOnlyManager Only */}
