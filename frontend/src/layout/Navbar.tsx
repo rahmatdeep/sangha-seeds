@@ -71,7 +71,8 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
     }
   };
 
-  const isAdmin = getUserRole() === "Administrator";
+  const role = getUserRole();
+  const isEmployee = role === "Employee";
 
   // Close FAB when clicking outside
   useEffect(() => {
@@ -91,7 +92,7 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
 
   // Update mobile nav indicator
   useEffect(() => {
-    if (!isAdmin) {
+    if (isEmployee) {
       const activeIndex = mobileNavItems.findIndex(
         (item) => item.to === location.pathname
       );
@@ -105,7 +106,7 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
         }
       }
     }
-  }, [location.pathname, isAdmin]);
+  }, [location.pathname, isEmployee]);
 
   // Close FAB on route change
   useEffect(() => {
@@ -139,7 +140,7 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
 
         {/* Nav Items */}
         <div className="flex flex-col gap-2 mt-12 px-2">
-          {(isAdmin ? desktopAdminNavItems : desktopNavItems).map((item) => (
+          {(isEmployee ? desktopNavItems : desktopAdminNavItems).map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -208,7 +209,7 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
           }}
         >
           {/* Sliding Indicator (only for non-admin) */}
-          {!isAdmin && (
+          {isEmployee && (
             <>
               <div
                 className="absolute top-0 transition-all duration-500 ease-out"
@@ -238,7 +239,59 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
 
           {/* Nav Items */}
           <div className="flex justify-around items-center py-3">
-            {isAdmin ? (
+            {isEmployee ? (
+              mobileNavItems.map((item, index) => {
+                const isActive = location.pathname === item.to;
+
+                return (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    ref={(el) => {
+                      navRefs.current[index] = el;
+                    }}
+                    className="flex flex-col items-center justify-center gap-1.5 relative py-2 px-6 min-w-20 group flex-1 active:scale-90 transition-transform duration-200"
+                  >
+                    {/* Icons */}
+                    <span
+                      className="text-2xl relative z-10 block transition-all duration-500 ease-out"
+                      style={{
+                        transform: isActive
+                          ? "scale(1.2) translateY(-4px)"
+                          : "scale(1)",
+                        color: isActive
+                          ? theme.colors.secondary
+                          : theme.colors.primary,
+                        filter: isActive
+                          ? `drop-shadow(0 2px 4px ${theme.colors.secondary}40)`
+                          : "none",
+                      }}
+                    >
+                      {item.icon}
+                    </span>
+
+                    {/* Label */}
+                    <span
+                      className="text-xs relative z-10 transition-all duration-500 ease-out"
+                      style={{
+                        fontWeight: isActive ? 600 : 400,
+                        color: isActive
+                          ? theme.colors.secondary
+                          : theme.colors.primary,
+                        opacity: isActive ? 1 : 0.7,
+                        transform: isActive
+                          ? "translateY(0)"
+                          : "translateY(2px)",
+                        letterSpacing: isActive ? "0.03em" : "normal",
+                      }}
+                    >
+                      {item.label}
+                    </span>
+                  </NavLink>
+                );
+              })
+            ) : (
+              // Render extended admin mobile nav (as in your current code)
               <>
                 {/* Dashboard */}
                 <NavLink
@@ -550,58 +603,6 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
                   )}
                 </NavLink>
               </>
-            ) : (
-              // Regular user navigation
-              mobileNavItems.map((item, index) => {
-                const isActive = location.pathname === item.to;
-
-                return (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    ref={(el) => {
-                      navRefs.current[index] = el;
-                    }}
-                    className="flex flex-col items-center justify-center gap-1.5 relative py-2 px-6 min-w-20 group flex-1 active:scale-90 transition-transform duration-200"
-                  >
-                    {/* Icons */}
-                    <span
-                      className="text-2xl relative z-10 block transition-all duration-500 ease-out"
-                      style={{
-                        transform: isActive
-                          ? "scale(1.2) translateY(-4px)"
-                          : "scale(1)",
-                        color: isActive
-                          ? theme.colors.secondary
-                          : theme.colors.primary,
-                        filter: isActive
-                          ? `drop-shadow(0 2px 4px ${theme.colors.secondary}40)`
-                          : "none",
-                      }}
-                    >
-                      {item.icon}
-                    </span>
-
-                    {/* Label */}
-                    <span
-                      className="text-xs relative z-10 transition-all duration-500 ease-out"
-                      style={{
-                        fontWeight: isActive ? 600 : 400,
-                        color: isActive
-                          ? theme.colors.secondary
-                          : theme.colors.primary,
-                        opacity: isActive ? 1 : 0.7,
-                        transform: isActive
-                          ? "translateY(0)"
-                          : "translateY(2px)",
-                        letterSpacing: isActive ? "0.03em" : "normal",
-                      }}
-                    >
-                      {item.label}
-                    </span>
-                  </NavLink>
-                );
-              })
             )}
           </div>
         </nav>
