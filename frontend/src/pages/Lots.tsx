@@ -16,6 +16,18 @@ export default function Lots() {
   const [varieties, setVarieties] = useState<Variety[]>([]);
   const navigate = useNavigate();
 
+  const getUserRole = () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return user.role || "user";
+    } catch {
+      return "user";
+    }
+  };
+
+  const role = getUserRole();
+  const canCreate = role === "Administrator" || role === "Manager";
+
   useEffect(() => {
     async function loadWarehouses() {
       try {
@@ -95,20 +107,22 @@ export default function Lots() {
                 </span>
               )}
             </button>
-            <button
-              className="px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5"
-              style={{
-                backgroundColor: theme.colors.secondary,
-                color: theme.colors.surface,
-                borderRadius: theme.borderRadius.lg,
-              }}
-              onClick={() => navigate("/lots/create")}
-            >
-              <span className="text-lg font-bold" style={{ lineHeight: 1 }}>
-                +
-              </span>
-              <span>Create Lot</span>
-            </button>
+            {canCreate && (
+              <button
+                className="px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5"
+                style={{
+                  backgroundColor: theme.colors.secondary,
+                  color: theme.colors.surface,
+                  borderRadius: theme.borderRadius.lg,
+                }}
+                onClick={() => navigate("/lots/create")}
+              >
+                <span className="text-lg font-bold" style={{ lineHeight: 1 }}>
+                  +
+                </span>
+                <span>Create Lot</span>
+              </button>
+            )}
           </div>
         </div>
 
