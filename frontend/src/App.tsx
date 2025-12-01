@@ -10,6 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Warehouses from "./pages/Warehouses";
 import CreateWarehouse from "./pages/CreateWarehouse";
 import Users from "./pages/Users";
+import CreateUser from "./pages/CreateUser";
 
 // Dummy pages for demonstration
 
@@ -33,6 +34,7 @@ function App() {
               <Route path="/warehouses" element={<Warehouses />} />
               <Route path="/warehouses/create" element={<CreateWarehouse />} />
               <Route path="/users" element={<Users />} />
+              <Route path="/users/create" element={<CreateUser />} />
             </Route>
           </Route>
         </Routes>

@@ -1,5 +1,5 @@
 import api from "./interceptor";
-import type { OrderCreate } from "../types";
+import type { OrderCreate, UserCreate } from "../types";
 
 // auth api calls
 export async function login(email: string, password: string) {
@@ -70,6 +70,11 @@ export async function fetchUsersByRole(role: string) {
 export async function getUser() {
   const res = await api.get("/user/me");
   return res.data.user;
+}
+
+export async function createUser(userData: UserCreate) {
+  const res = await api.post("/user/create", userData);
+  return res.data;
 }
 
 export async function fetchUsersForTab(

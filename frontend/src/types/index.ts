@@ -30,7 +30,10 @@ export const UserSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  mobile: z.string().min(10, "Mobile number must be at least 10 digits"),
+  mobile: z
+    .string()
+    .min(10, "Mobile number must be at least 10 digits")
+    .max(10, "Mobile number cannot exceed 10 digits"),
   role: UserRolesSchema,
   areaOfResponsibility: z.string().nullable().optional(),
   warehouseid: z.string().uuid().nullable().optional(),
@@ -453,4 +456,3 @@ export type WarehouseResponse = Warehouse & {
 export type WarehousesResponse = {
   warehouses: WarehouseResponse[];
 };
-    
