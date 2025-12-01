@@ -17,7 +17,7 @@ interface FilterModalProps {
   employees?: User[];
   varieties?: Variety[];
   role?: string;
-  type: "orders" | "warehouses" | "users" | "varieties";
+  type: "orders" | "warehouses" | "users" | "varieties" | "lots";
 }
 
 const statusOptions = [
@@ -331,6 +331,122 @@ export default function FilterModal({
                 onChange={(val) => handleChange("warehouseId", val)}
                 placeholder="Select warehouse"
               />
+            </div>
+          </>
+        )}
+
+        {/* Lot Filters */}
+        {type === "lots" && (
+          <>
+            <div className="mb-3">
+              <Input
+                label="Search"
+                placeholder="Search lot number"
+                value={localFilters.search || ""}
+                onChange={(e) => handleChange("search", e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <Dropdown
+                label="Warehouse"
+                options={warehouses.map((wh) => ({
+                  value: wh.id,
+                  label: wh.name,
+                }))}
+                value={localFilters.warehouseId || ""}
+                onChange={(val) => handleChange("warehouseId", val)}
+                placeholder="Select warehouse"
+              />
+            </div>
+            <div className="mb-3">
+              <Dropdown
+                label="Variety"
+                options={varieties.map((v) => ({
+                  value: v.id,
+                  label: v.name,
+                }))}
+                value={localFilters.varietyId || ""}
+                onChange={(val) => handleChange("varietyId", val)}
+                placeholder="Select variety"
+              />
+            </div>
+            <div className="mb-3">
+              <Dropdown
+                label="Size"
+                options={[
+                  { value: "Seed", label: "Seed" },
+                  { value: "Soot12", label: "Soot12" },
+                  { value: "Soot11", label: "Soot11" },
+                  { value: "Soot10", label: "Soot10" },
+                  { value: "Soot8", label: "Soot8" },
+                  { value: "Soot4to6", label: "Soot4to6" },
+                  { value: "Soot4to8", label: "Soot4to8" },
+                ]}
+                value={localFilters.size || ""}
+                onChange={(val) => handleChange("size", val)}
+                placeholder="Select size"
+              />
+            </div>
+            <div className="mb-3">
+              <Input
+                label="Min Quantity"
+                type="number"
+                value={localFilters.minQuantity || ""}
+                onChange={(e) => handleChange("minQuantity", e.target.value)}
+                placeholder="Minimum quantity"
+              />
+            </div>
+            <div className="mb-3">
+              <Input
+                label="Max Quantity"
+                type="number"
+                value={localFilters.maxQuantity || ""}
+                onChange={(e) => handleChange("maxQuantity", e.target.value)}
+                placeholder="Maximum quantity"
+              />
+            </div>
+            <div className="mb-3">
+              <Checkbox
+                id="availableOnly"
+                label="Only available lots"
+                checked={localFilters.availableOnly === "true"}
+                onChange={(checked) =>
+                  handleChange("availableOnly", checked ? "true" : "false")
+                }
+              />
+            </div>
+            <div className="flex justify-between gap-2">
+              <div className="mb-3 w-full">
+                <Calendar
+                  label="Expiry Before"
+                  value={localFilters.expiryBefore || ""}
+                  onChange={(val) => handleChange("expiryBefore", val)}
+                />
+              </div>
+              <div className="mb-3 w-full">
+                <Calendar
+                  label="Expiry After"
+                  value={localFilters.expiryAfter || ""}
+                  onChange={(val) => handleChange("expiryAfter", val)}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-between gap-2">
+              <div className="mb-3 w-full">
+                <Calendar
+                  label="Storage Date From"
+                  value={localFilters.storageDateFrom || ""}
+                  onChange={(val) => handleChange("storageDateFrom", val)}
+                />
+              </div>
+              <div className="mb-3 w-full">
+                <Calendar
+                  label="Storage Date To"
+                  value={localFilters.storageDateTo || ""}
+                  onChange={(val) => handleChange("storageDateTo", val)}
+                />
+              </div>
             </div>
           </>
         )}

@@ -49,11 +49,16 @@ export async function assignEmployee(orderId: string, employeeId: string) {
 }
 
 // lots
-export async function fetchLots() {
-  const res = await api.get("/lot");
+export async function fetchLots(filters = {}) {
+  const params = new URLSearchParams(filters).toString();
+  const res = await api.get(`/lot?${params}`);
   return res.data.lots || res.data;
 }
 
+export async function createLot(lotData: any) {
+  const res = await api.post("/lot", lotData);
+  return res.data;
+}
 // warehouses
 export async function fetchWarehouses(filters = {}) {
   const params = new URLSearchParams(filters).toString();
@@ -93,12 +98,15 @@ export async function fetchUsersForTab(
   ]);
   // Deduplicate by user id
   const merged = [...managers, ...readOnlyManagers];
-  const unique = Array.from(new Map(merged.map(u => [u.id, u])).values());
+  const unique = Array.from(new Map(merged.map((u) => [u.id, u])).values());
   return unique;
 }
 
 // Helper function to fetch users by role with filters
-export async function fetchUsersByRoleWithFilters(role: string, filters: Record<string, any> = {}) {
+export async function fetchUsersByRoleWithFilters(
+  role: string,
+  filters: Record<string, any> = {}
+) {
   const params = new URLSearchParams({ ...filters, role }).toString();
   const res = await api.get(`/user?${params}`);
   return res.data.users || res.data;
