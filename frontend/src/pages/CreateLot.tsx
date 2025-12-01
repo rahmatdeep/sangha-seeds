@@ -20,9 +20,10 @@ export default function CreateLot() {
     lotNo: "",
     varietyId: "",
     quantity: 0,
+    quantityOnHold: 0,
     size: "Seed",
-    storageDate: "",
-    expiryDate: "",
+    storageDate: null,
+    expiryDate: null,
     warehouseId: "",
     remarks: "",
   });
@@ -94,7 +95,12 @@ export default function CreateLot() {
     }
     setLoading(true);
     try {
-      await createLot(form);
+      await createLot({
+        ...form,
+        storageDate: form.storageDate ? new Date(form.storageDate) : undefined,
+        expiryDate: form.expiryDate ? new Date(form.expiryDate) : undefined,
+        quantityOnHold: 0,
+      });
       showSuccess("Lot created!");
       setTimeout(() => navigate("/lots"), 1200);
     } catch {
@@ -158,7 +164,7 @@ export default function CreateLot() {
         <Dropdown
           label="Warehouse"
           required
-          value={form.warehouseId}
+          value={form.warehouseId ?? ""}
           onChange={(val) => handleChange("warehouseId", val)}
           options={warehouses.map((wh) => ({ value: wh.id, label: wh.name }))}
           placeholder="Select warehouse"
@@ -166,12 +172,12 @@ export default function CreateLot() {
         />
         <Calendar
           label="Storage Date"
-          value={form.storageDate || ""}
+          value={typeof form.storageDate === "string" ? form.storageDate : ""}
           onChange={(val) => handleChange("storageDate", val)}
         />
         <Calendar
           label="Expiry Date"
-          value={form.expiryDate || ""}
+          value={typeof form.expiryDate === "string" ? form.expiryDate : ""}
           onChange={(val) => handleChange("expiryDate", val)}
         />
         <Input
