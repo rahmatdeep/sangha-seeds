@@ -80,6 +80,20 @@ export default function LotCard({
               className="text-xs opacity-60 mb-0.5"
               style={{ color: theme.colors.primary }}
             >
+              Quantity on Hold
+            </div>
+            <div
+              className="font-semibold text-sm"
+              style={{ color: theme.colors.primary }}
+            >
+              {lot.quantityOnHold}
+            </div>
+          </div>
+          <div>
+            <div
+              className="text-xs opacity-60 mb-0.5"
+              style={{ color: theme.colors.primary }}
+            >
               Size
             </div>
             <div
