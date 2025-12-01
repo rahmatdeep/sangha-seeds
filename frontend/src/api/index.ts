@@ -72,6 +72,23 @@ export async function getUser() {
   return res.data.user;
 }
 
+export async function fetchUsersForTab(
+  tab: "Administrator" | "Managers" | "Employee"
+) {
+  if (tab === "Administrator") {
+    return fetchUsersByRole("Administrator");
+  }
+  if (tab === "Employee") {
+    return fetchUsersByRole("Employee");
+  }
+  // Managers tab = Manager + ReadOnlyManager
+  const [managers, readOnlyManagers] = await Promise.all([
+    fetchUsersByRole("Manager"),
+    fetchUsersByRole("ReadOnlyManager"),
+  ]);
+  return [...managers, ...readOnlyManagers];
+}
+
 // varieties
 export async function fetchVarieties() {
   const res = await api.get("/variety/");

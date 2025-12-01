@@ -9,6 +9,7 @@ import { ToastProvider } from "./components/ui/ToastProvider";
 import Dashboard from "./pages/Dashboard";
 import Warehouses from "./pages/Warehouses";
 import CreateWarehouse from "./pages/CreateWarehouse";
+import Users from "./pages/Users";
 
 // Dummy pages for demonstration
 
@@ -31,6 +32,7 @@ function App() {
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/warehouses" element={<Warehouses />} />
               <Route path="/warehouses/create" element={<CreateWarehouse />} />
+              <Route path="/users" element={<Users />} />
             </Route>
           </Route>
         </Routes>
