@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { FaUsers, FaFilter } from "react-icons/fa";
+import {
+  FaUsers,
+  FaFilter,
+  FaEnvelope,
+  FaPhone,
+  FaWarehouse,
+} from "react-icons/fa";
 import { theme } from "../theme";
 import { fetchUsersForTab, fetchWarehouses } from "../api";
 import type { UserRole, User } from "../types";
@@ -70,7 +76,7 @@ export default function Users() {
     if (activeTab && visibleTabs.length) loadUsers();
   }, [activeTab, visibleTabs.length, filters]);
 
-  if (!visibleTabs.length) return null; // Employees shouldn't see this page
+  if (!visibleTabs.length) return null;
 
   return (
     <div
@@ -94,10 +100,10 @@ export default function Users() {
           </div>
           <div className="flex gap-2">
             <button
-              className="relative px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5"
+              className="relative px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:opacity-90"
               style={{
                 backgroundColor: theme.colors.accent,
-                color: theme.colors.surface,
+                color: theme.colors.primary,
                 borderRadius: theme.borderRadius.lg,
               }}
               onClick={() => setShowFilter(true)}
@@ -118,7 +124,7 @@ export default function Users() {
             </button>
             {role === "Administrator" && (
               <button
-                className="px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5"
+                className="px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:opacity-90"
                 style={{
                   backgroundColor: theme.colors.secondary,
                   color: theme.colors.surface,
@@ -157,7 +163,7 @@ export default function Users() {
             return (
               <button
                 key={tab}
-                className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium sm:px-4 sm:text-sm transition"
+                className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium sm:px-4 sm:text-sm transition-all"
                 style={{
                   backgroundColor: isActive
                     ? theme.colors.secondary
@@ -201,59 +207,104 @@ export default function Users() {
           </div>
         )}
 
-        {/* Users list */}
+        {/* Users list - Enhanced Design */}
         {!loading && users.length > 0 && (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:gap-5">
             {users.map((u) => (
               <article
                 key={u.id}
-                className="flex items-center gap-3 rounded-2xl border p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4"
+                className="group relative overflow-hidden rounded-2xl border transition-all duration-300 hover:shadow-sm cursor-pointer"
                 style={{
                   backgroundColor: theme.colors.surface,
                   borderColor: theme.colors.accent,
                 }}
               >
-                <div
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base font-semibold sm:h-12 sm:w-12 sm:text-lg"
-                  style={{
-                    background: theme.colors.accent,
-                    color: theme.colors.primary,
-                  }}
-                >
-                  {u.name?.[0]?.toUpperCase() ?? "U"}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div
-                    className="truncate text-sm font-semibold sm:text-base"
-                    style={{ color: theme.colors.primary }}
-                  >
-                    {u.name}
-                  </div>
-                  <div className="truncate text-xs text-gray-600 sm:text-sm">
-                    {u.email}
-                  </div>
-
-                  {/* Only show warehouse if present */}
-                  {u.warehouseid && (
-                    <div className="mt-1 text-[11px] text-gray-600 sm:text-xs">
-                      Warehouse: {u.warehouseid}
-                    </div>
-                  )}
-
-                  {/* Read-only badge */}
-                  {u.role === "ReadOnlyManager" && (
-                    <span
-                      className="rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide sm:text-[11px]"
+                <div className="relative p-4 sm:p-5">
+                  <div className="flex items-start gap-4">
+                    {/* Avatar */}
+                    <div
+                      className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold transition-all duration-300  sm:h-16 sm:w-16 sm:text-xl"
                       style={{
-                        backgroundColor: "transparent",
-                        color: theme.colors.secondary,
-                        border: `1px dashed ${theme.colors.secondary}`,
+                        background: theme.colors.secondary,
+                        color: theme.colors.surface,
+                        boxShadow: `0 4px 12px ${theme.colors.accent}40`,
                       }}
                     >
-                      Read only permissions
-                    </span>
-                  )}
+                      {u.name?.[0]?.toUpperCase() ?? "U"}
+                    </div>
+
+                    {/* Content */}
+                    <div className="min-w-0 flex-1">
+                      {/* Name and badge row */}
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3
+                          className="truncate text-base font-bold sm:text-lg"
+                          style={{ color: theme.colors.primary }}
+                        >
+                          {u.name}
+                        </h3>
+
+                        {/* Read-only badge */}
+                        {u.role === "ReadOnlyManager" && (
+                          <span
+                            className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+                            style={{
+                              backgroundColor: `${theme.colors.secondary}15`,
+                              color: theme.colors.secondary,
+                              border: `1px solid ${theme.colors.secondary}40`,
+                            }}
+                          >
+                            Read-only
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Contact info with icons */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-2 text-xs sm:text-sm group/email">
+                          <FaEnvelope
+                            className="shrink-0 text-xs transition-colors"
+                            style={{ color: theme.colors.accent }}
+                          />
+                          <span
+                            className="truncate transition-colors"
+                            style={{ color: theme.colors.primary }}
+                          >
+                            {u.email}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-xs sm:text-sm">
+                          <FaPhone
+                            className="shrink-0 text-xs transition-colors"
+                            style={{ color: theme.colors.accent }}
+                          />
+                          <span
+                            className="truncate"
+                            style={{ color: theme.colors.primary }}
+                          >
+                            {u.mobile}
+                          </span>
+                        </div>
+
+                        {/* Warehouse info */}
+                        {u.warehouseid && (
+                          <div
+                            className="mt-2 inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs"
+                            style={{
+                              backgroundColor: `${theme.colors.accent}60`,
+                              color: theme.colors.primary,
+                            }}
+                          >
+                            <FaWarehouse />
+                            <span className="font-medium">
+                              Warehouse: {u.warehouseid}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </article>
             ))}
