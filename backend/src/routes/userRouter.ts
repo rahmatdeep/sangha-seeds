@@ -6,7 +6,11 @@ import {
   readOnlyMiddleware,
 } from "../middleware";
 import { prisma } from "../lib/prisma";
-import { UserCreateSchema, UserUpdateSchema } from "../lib/types";
+import {
+  UserCreateSchema,
+  UserQuerySchema,
+  UserUpdateSchema,
+} from "../lib/types";
 import bcrypt from "bcrypt";
 
 const router = Router();
@@ -41,37 +45,39 @@ DELETE /api/users/:id
 */
 
 router.get("/", readOnlyMiddleware, async (req: Request, res: Response) => {
-  const {
-    role,
-    warehouseId,
-    search,
-    page = "1",
-    limit = "10",
-    sortBy,
-    order,
-  } = req.query;
-
-  const pageNumber = parseInt(page as string, 10);
-  const limitNumber = parseInt(limit as string, 10);
-  const skip = (pageNumber - 1) * limitNumber;
-
-  const whereClause: any = {};
-
-  if (role) {
-    whereClause.role = role;
-  }
-  if (warehouseId) {
-    whereClause.assignedWarehouseId = warehouseId;
-  }
-  if (search) {
-    whereClause.OR = [
-      { name: { contains: search as string, mode: "insensitive" } },
-      { email: { contains: search as string, mode: "insensitive" } },
-      { mobile: { contains: search as string, mode: "insensitive" } },
-    ];
-  }
-
   try {
+    const validatedQuery = UserQuerySchema.safeParse(req.query);
+
+    if (!validatedQuery.success) {
+      return res.status(400).json({ message: "Invalid query parameters" });
+    }
+    const {
+      role,
+      warehouseId,
+      search,
+      page = "1",
+      limit = "10",
+      sortBy,
+      order,
+    } = validatedQuery.data;
+    const pageNumber = parseInt(page as string, 10);
+    const limitNumber = parseInt(limit as string, 10);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const whereClause: any = {};
+    if (role) {
+      whereClause.role = role;
+    }
+    if (warehouseId) {
+      whereClause.warehouseid = warehouseId;
+    }
+    if (search) {
+      whereClause.OR = [
+        { name: { contains: search as string, mode: "insensitive" } },
+        { email: { contains: search as string, mode: "insensitive" } },
+        { mobile: { contains: search as string, mode: "insensitive" } },
+      ];
+    }
     const users = await prisma.user.findMany({
       where: whereClause,
       skip,

@@ -76,24 +76,33 @@ export async function createUser(userData: UserCreate) {
   const res = await api.post("/user/create", userData);
   return res.data;
 }
-
 export async function fetchUsersForTab(
-  tab: "Administrator" | "Managers" | "Employee"
+  tab: "Administrator" | "Managers" | "Employee",
+  filters: Record<string, any> = {}
 ) {
   if (tab === "Administrator") {
-    return fetchUsersByRole("Administrator");
+    return fetchUsersByRoleWithFilters("Administrator", filters);
   }
   if (tab === "Employee") {
-    return fetchUsersByRole("Employee");
+    return fetchUsersByRoleWithFilters("Employee", filters);
   }
   // Managers tab = Manager + ReadOnlyManager
   const [managers, readOnlyManagers] = await Promise.all([
-    fetchUsersByRole("Manager"),
-    fetchUsersByRole("ReadOnlyManager"),
+    fetchUsersByRoleWithFilters("Manager", filters),
+    fetchUsersByRoleWithFilters("ReadOnlyManager", filters),
   ]);
-  return [...managers, ...readOnlyManagers];
+  // Deduplicate by user id
+  const merged = [...managers, ...readOnlyManagers];
+  const unique = Array.from(new Map(merged.map(u => [u.id, u])).values());
+  return unique;
 }
 
+// Helper function to fetch users by role with filters
+export async function fetchUsersByRoleWithFilters(role: string, filters: Record<string, any> = {}) {
+  const params = new URLSearchParams({ ...filters, role }).toString();
+  const res = await api.get(`/user?${params}`);
+  return res.data.users || res.data;
+}
 // varieties
 export async function fetchVarieties() {
   const res = await api.get("/variety/");

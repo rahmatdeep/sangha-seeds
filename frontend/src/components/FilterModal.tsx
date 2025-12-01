@@ -17,7 +17,7 @@ interface FilterModalProps {
   employees?: User[];
   varieties?: Variety[];
   role: string;
-  type: "orders" | "warehouses";
+  type: "orders" | "warehouses" | "users";
 }
 
 const statusOptions = [
@@ -280,6 +280,32 @@ export default function FilterModal({
                 value={localFilters.order || "desc"}
                 onChange={(val) => handleChange("order", val)}
                 placeholder="Order"
+              />
+            </div>
+          </>
+        )}
+
+        {/* User Filters */}
+        {type === "users" && (
+          <>
+            <div className="mb-3">
+              <Input
+                label="Search"
+                placeholder="Search name or email or mobile"
+                value={localFilters.search || ""}
+                onChange={(e) => handleChange("search", e.target.value)}
+              />
+            </div>
+            <div>
+              <Dropdown
+                label="Warehouse"
+                options={warehouses.map((wh: Warehouse) => ({
+                  value: wh.id,
+                  label: wh.name,
+                }))}
+                value={localFilters.warehouseId || ""}
+                onChange={(val) => handleChange("warehouseId", val)}
+                placeholder="Select warehouse"
               />
             </div>
           </>

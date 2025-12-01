@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { FaUsers, FaUserPlus } from "react-icons/fa";
+import { FaUsers, FaFilter } from "react-icons/fa";
 import { theme } from "../theme";
-import { fetchUsersForTab } from "../api";
+import { fetchUsersForTab, fetchWarehouses } from "../api";
 import type { UserRole, User } from "../types";
 import { useNavigate } from "react-router-dom";
+import FilterModal from "../components/FilterModal";
 
 type VisibleRoleTab = "Administrator" | "Managers" | "Employee";
 
@@ -39,11 +40,27 @@ export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const [showFilter, setShowFilter] = useState(false);
+  const [filters, setFilters] = useState<Record<string, any>>({});
+  const [warehouses, setWarehouses] = useState([]);
+
+  useEffect(() => {
+    async function loadWarehouses() {
+      try {
+        const data = await fetchWarehouses();
+        setWarehouses(data);
+      } catch {
+        setWarehouses([]);
+      }
+    }
+    loadWarehouses();
+  }, []);
+
   useEffect(() => {
     async function loadUsers() {
       setLoading(true);
       try {
-        const data = await fetchUsersForTab(activeTab);
+        const data = await fetchUsersForTab(activeTab, filters);
         setUsers(data);
       } catch {
         setUsers([]);
@@ -51,7 +68,7 @@ export default function Users() {
       setLoading(false);
     }
     if (activeTab && visibleTabs.length) loadUsers();
-  }, [activeTab, visibleTabs.length]);
+  }, [activeTab, visibleTabs.length, filters]);
 
   if (!visibleTabs.length) return null; // Employees shouldn't see this page
 
@@ -75,21 +92,60 @@ export default function Users() {
               Users
             </h2>
           </div>
-          {role === "Administrator" && (
+          <div className="flex gap-2">
             <button
-              className="px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5"
+              className="relative px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5"
               style={{
-                backgroundColor: theme.colors.secondary,
+                backgroundColor: theme.colors.accent,
                 color: theme.colors.surface,
                 borderRadius: theme.borderRadius.lg,
               }}
-              onClick={() => navigate("/users/create")}
+              onClick={() => setShowFilter(true)}
             >
-              <FaUserPlus />
-              <span>Create User</span>
+              <FaFilter />
+              <span className="hidden sm:inline">Filter</span>
+              {Object.keys(filters).length > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center"
+                  style={{
+                    background: theme.colors.warning,
+                    color: theme.colors.surface,
+                  }}
+                >
+                  {Object.keys(filters).length}
+                </span>
+              )}
             </button>
-          )}
+            {role === "Administrator" && (
+              <button
+                className="px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5"
+                style={{
+                  backgroundColor: theme.colors.secondary,
+                  color: theme.colors.surface,
+                  borderRadius: theme.borderRadius.lg,
+                }}
+                onClick={() => navigate("/users/create")}
+              >
+                <span className="text-lg font-bold" style={{ lineHeight: 1 }}>
+                  +
+                </span>
+                <span>Create User</span>
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Filter Modal */}
+        {showFilter && (
+          <FilterModal
+            filters={filters}
+            setFilters={setFilters}
+            onClose={() => setShowFilter(false)}
+            warehouses={warehouses}
+            role={role}
+            type="users"
+          />
+        )}
 
         {/* Tabs */}
         <div
