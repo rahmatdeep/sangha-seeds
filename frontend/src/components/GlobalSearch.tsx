@@ -126,12 +126,14 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
       // Arrow navigation
       if (e.key === "ArrowDown") {
         e.preventDefault();
-        setSelectedIndex((prev) => Math.min(prev + 1, getTotalResults() - 1));
+        const totalResults = getTotalResults();
+        setSelectedIndex((prev) => (prev + 1) % totalResults);
       }
 
       if (e.key === "ArrowUp") {
         e.preventDefault();
-        setSelectedIndex((prev) => Math.max(prev - 1, 0));
+        const totalResults = getTotalResults();
+        setSelectedIndex((prev) => (prev - 1 + totalResults) % totalResults);
       }
 
       // Enter to navigate
@@ -143,7 +145,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, selectedIndex]);
+  }, [isOpen, selectedIndex, results]);
 
   const getTotalResults = () => {
     return Object.values(results).reduce(
