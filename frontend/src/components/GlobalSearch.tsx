@@ -8,6 +8,8 @@ import {
   FaBox,
   FaClipboardList,
   FaSeedling,
+  FaChevronUp,
+  FaChevronDown,
 } from "react-icons/fa";
 import { theme } from "../theme";
 import { globalSearch } from "../api";
@@ -205,18 +207,16 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                 color: theme.colors.primary,
               }}
             />
-            {searchQuery && (
-              <button
-                onClick={onClose}
-                className="p-1.5 rounded-full transition-all hover:scale-110"
-                style={{ background: theme.colors.accent }}
-              >
-                <FaTimes
-                  style={{ color: theme.colors.primary }}
-                  className="text-sm"
-                />
-              </button>
-            )}
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-full transition-all hover:scale-110"
+              style={{ background: theme.colors.accent }}
+            >
+              <FaTimes
+                style={{ color: theme.colors.primary }}
+                className="text-sm"
+              />
+            </button>
           </div>
 
           {/* Filter Chips */}
@@ -270,24 +270,70 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
           )}
 
           {!isLoading && !searchQuery && (
-            <div
-              className="p-8 text-center"
-              style={{ color: theme.colors.primary }}
-            >
-              <p className="text-sm">Type to search across your data</p>
-              <p
-                className="text-xs mt-2"
-                style={{ color: `${theme.colors.primary}80` }}
+            <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center">
+              <div
+                className="p-6 rounded-full mb-4 inline-flex"
+                style={{ background: theme.colors.accent }}
               >
-                Press{" "}
-                <kbd
-                  className="px-2 py-1 rounded"
-                  style={{ background: theme.colors.accent }}
-                >
-                  Esc
-                </kbd>{" "}
-                to close
-              </p>
+                <FaSearch
+                  className="text-4xl md:text-5xl"
+                  style={{ color: theme.colors.secondary }}
+                />
+              </div>
+
+              <h3
+                className="text-lg md:text-xl font-semibold mb-4"
+                style={{ color: theme.colors.primary }}
+              >
+                Start Searching
+              </h3>
+
+              {/* Keyboard shortcuts - Desktop only */}
+              <div className="hidden sm:flex items-center gap-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <kbd
+                    className="px-3 py-1.5 rounded font-mono font-medium shadow-sm"
+                    style={{
+                      background: theme.colors.accent,
+                      color: theme.colors.primary,
+                      border: `1px solid ${theme.colors.primary}20`,
+                    }}
+                  >
+                    Esc
+                  </kbd>
+                  <span style={{ color: `${theme.colors.primary}60` }}>
+                    to close
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <div className="flex gap-1">
+                    <kbd
+                      className="px-2 py-1.5 rounded font-mono font-medium shadow-sm"
+                      style={{
+                        background: theme.colors.accent,
+                        color: theme.colors.primary,
+                        border: `1px solid ${theme.colors.primary}20`,
+                      }}
+                    >
+                      <FaChevronUp />
+                    </kbd>
+                    <kbd
+                      className="px-2 py-1.5 rounded font-mono font-medium shadow-sm"
+                      style={{
+                        background: theme.colors.accent,
+                        color: theme.colors.primary,
+                        border: `1px solid ${theme.colors.primary}20`,
+                      }}
+                    >
+                      <FaChevronDown />
+                    </kbd>
+                  </div>
+                  <span style={{ color: `${theme.colors.primary}60` }}>
+                    to navigate
+                  </span>
+                </div>
+              </div>
             </div>
           )}
 
