@@ -1,5 +1,5 @@
 import api from "./interceptor";
-import type { OrderCreate, UserCreate } from "../types";
+import type { GlobalSearchQuery, OrderCreate, UserCreate } from "../types";
 
 // auth api calls
 export async function login(email: string, password: string) {
@@ -121,4 +121,11 @@ export async function fetchVarieties(filters = {}) {
 export async function createVariety(varietyData: { name: string }) {
   const res = await api.post("/variety/", varietyData);
   return res.data;
+}
+
+// global search
+export async function globalSearch(params: GlobalSearchQuery) {
+  const searchParams = new URLSearchParams(params).toString();
+  const res = await api.get(`/search?${searchParams}`);
+  return res.data.results;
 }
