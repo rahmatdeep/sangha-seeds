@@ -12,7 +12,6 @@ import {
 } from "../types";
 import { createLot, fetchWarehouses, fetchVarieties, updateLot } from "../api";
 import { useToast } from "../hooks/toastContext";
-import axios from "axios";
 
 const SIZE_OPTIONS = PotatoSizesSchema.options.map((size) => ({
   value: size,
@@ -28,14 +27,9 @@ export default function LotForm() {
     lotNo: editLot?.lotNo || "",
     varietyId: editLot?.varietyId || "",
     quantity: editLot?.quantity || 0,
-    quantityOnHold: editLot?.quantityOnHold || 0,
     size: editLot?.size || "Seed",
-    storageDate: editLot?.storageDate
-      ? new Date(editLot.storageDate).toISOString().slice(0, 10)
-      : null,
-    expiryDate: editLot?.expiryDate
-      ? new Date(editLot.expiryDate).toISOString().slice(0, 10)
-      : null,
+    storageDate: editLot?.storageDate ? new Date(editLot.storageDate) : null,
+    expiryDate: editLot?.expiryDate ? new Date(editLot.expiryDate) : null,
     warehouseId: editLot?.warehouseId || "",
     remarks: editLot?.remarks || "",
   });
@@ -86,7 +80,7 @@ export default function LotForm() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: unknown) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setTouched((prev) => ({ ...prev, [field]: true }));
     if (value) {
@@ -122,9 +116,13 @@ export default function LotForm() {
         });
         showSuccess("Lot updated!");
       } else {
-        // Create
         await createLot({
-          ...form,
+          lotNo: form.lotNo as string,
+          varietyId: form.varietyId as string,
+          quantity: form.quantity as number,
+          size: form.size as (typeof PotatoSizesSchema.options)[number],
+          warehouseId: form.warehouseId ?? undefined,
+          remarks: form.remarks,
           storageDate: form.storageDate
             ? new Date(form.storageDate)
             : undefined,

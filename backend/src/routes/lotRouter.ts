@@ -232,6 +232,13 @@ router.post("/", managerMiddleware, async (req: Request, res: Response) => {
 //locked quantity cannot be changed directly
 router.patch("/:id", managerMiddleware, async (req: Request, res: Response) => {
   const lotId = req.params.id;
+  // Convert date strings to Date objects
+  if (req.body.storageDate && typeof req.body.storageDate === "string") {
+    req.body.storageDate = new Date(req.body.storageDate);
+  }
+  if (req.body.expiryDate && typeof req.body.expiryDate === "string") {
+    req.body.expiryDate = new Date(req.body.expiryDate);
+  }
   const parsedData = LotUpdateSchema.safeParse(req.body);
   if (!parsedData.success) {
     return res.status(400).json({ message: "Invalid request data" });

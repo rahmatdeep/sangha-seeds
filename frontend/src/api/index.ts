@@ -1,6 +1,8 @@
 import api from "./interceptor";
 import type {
   GlobalSearchQuery,
+  LotCreate,
+  LotUpdate,
   OrderCreate,
   OrderUpdate,
   UserCreate,
@@ -65,12 +67,12 @@ export async function fetchLots(filters = {}) {
   return res.data.lots || res.data;
 }
 
-export async function createLot(lotData: any) {
+export async function createLot(lotData: LotCreate) {
   const res = await api.post("/lot", lotData);
   return res.data;
 }
 
-export async function updateLot(lotId: string, lotData: any) {
+export async function updateLot(lotId: string, lotData: LotUpdate) {
   const res = await api.patch(`/lot/${lotId}`, lotData);
   return res.data;
 }
