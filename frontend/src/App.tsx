@@ -14,7 +14,7 @@ import CreateUser from "./pages/CreateUser";
 import Varieties from "./pages/Varities";
 import CreateVariety from "./pages/CreateVariety";
 import Lots from "./pages/Lots";
-import CreateLot from "./pages/CreateLot";
+import LotForm from "./pages/LotForm";
 
 function App() {
   return (
@@ -35,7 +35,7 @@ function App() {
               <Route path="/varieties" element={<Varieties />} />
               <Route path="/varieties/create" element={<CreateVariety />} />
               <Route path="/lots" element={<Lots />} />
-              <Route path="/lots/create" element={<CreateLot />} />
+              <Route path="/lots/form" element={<LotForm />} />
             </Route>
           </Route>
         </Routes>

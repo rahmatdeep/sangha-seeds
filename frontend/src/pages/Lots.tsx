@@ -115,7 +115,7 @@ export default function Lots() {
                   color: theme.colors.surface,
                   borderRadius: theme.borderRadius.lg,
                 }}
-                onClick={() => navigate("/lots/create")}
+                onClick={() => navigate("/lots/form")}
               >
                 <span className="text-lg font-bold" style={{ lineHeight: 1 }}>
                   +
@@ -171,6 +171,17 @@ export default function Lots() {
                 lot={lot}
                 variety={varieties.find((v) => v.id === lot.varietyId)}
                 warehouse={warehouses.find((w) => w.id === lot.warehouseId)}
+                canEdit={role == "Administrator"}
+                onEdit={() =>
+                  role == "Administrator" &&
+                  navigate("/lots/form", {
+                    state: {
+                      lot,
+                      warehouses,
+                      varieties,
+                    },
+                  })
+                }
               />
             ))}
           </div>

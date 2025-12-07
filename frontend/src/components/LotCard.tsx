@@ -6,10 +6,14 @@ export default function LotCard({
   lot,
   variety,
   warehouse,
+  canEdit = false,
+  onEdit,
 }: {
   lot: Lot;
   variety?: Variety;
   warehouse?: Warehouse;
+  canEdit?: boolean;
+  onEdit?: () => void;
 }) {
   const formatDate = (date: Date | null | undefined) => {
     if (!date) return "N/A";
@@ -29,7 +33,13 @@ export default function LotCard({
       }}
     >
       {/* Header - Always Visible */}
-      <div className="p-4">
+      <div
+        className="p-4"
+        onClick={() => {
+          if (canEdit && onEdit) onEdit();
+        }}
+        style={{ cursor: canEdit ? "pointer" : "default" }}
+      >
         <div className="flex justify-between items-start gap-3 mb-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-1">

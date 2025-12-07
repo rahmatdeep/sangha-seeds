@@ -69,6 +69,12 @@ export async function createLot(lotData: any) {
   const res = await api.post("/lot", lotData);
   return res.data;
 }
+
+export async function updateLot(lotId: string, lotData: any) {
+  const res = await api.patch(`/lot/${lotId}`, lotData);
+  return res.data;
+}
+
 // warehouses
 export async function fetchWarehouses(filters = {}) {
   const params = new URLSearchParams(filters).toString();

@@ -1,37 +1,49 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { theme } from "../theme";
 import Input from "../components/ui/Input";
 import Dropdown from "../components/ui/Dropdown";
 import Calendar from "../components/ui/Calendar";
-import { PotatoSizesSchema, type LotCreate } from "../types";
-import { createLot, fetchWarehouses, fetchVarieties } from "../api";
+import {
+  PotatoSizesSchema,
+  type Lot,
+  type Variety,
+  type Warehouse,
+} from "../types";
+import { createLot, fetchWarehouses, fetchVarieties, updateLot } from "../api";
 import { useToast } from "../hooks/toastContext";
+import axios from "axios";
 
 const SIZE_OPTIONS = PotatoSizesSchema.options.map((size) => ({
   value: size,
   label: size,
 }));
 
-export default function CreateLot() {
+export default function LotForm() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
-  const [form, setForm] = useState<LotCreate>({
-    lotNo: "",
-    varietyId: "",
-    quantity: 0,
-    quantityOnHold: 0,
-    size: "Seed",
-    storageDate: null,
-    expiryDate: null,
-    warehouseId: "",
-    remarks: "",
+  const location = useLocation();
+  const editLot: Lot | undefined = location.state?.lot;
+  const [form, setForm] = useState<Partial<Lot>>({
+    lotNo: editLot?.lotNo || "",
+    varietyId: editLot?.varietyId || "",
+    quantity: editLot?.quantity || 0,
+    quantityOnHold: editLot?.quantityOnHold || 0,
+    size: editLot?.size || "Seed",
+    storageDate: editLot?.storageDate
+      ? new Date(editLot.storageDate).toISOString().slice(0, 10)
+      : null,
+    expiryDate: editLot?.expiryDate
+      ? new Date(editLot.expiryDate).toISOString().slice(0, 10)
+      : null,
+    warehouseId: editLot?.warehouseId || "",
+    remarks: editLot?.remarks || "",
   });
-  const [warehouses, setWarehouses] = useState<{ id: string; name: string }[]>(
-    []
+  const [warehouses, setWarehouses] = useState<Warehouse[]>(
+    location.state?.warehouses || []
   );
-  const [varieties, setVarieties] = useState<{ id: string; name: string }[]>(
-    []
+  const [varieties, setVarieties] = useState<Variety[]>(
+    location.state?.varieties || []
   );
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -39,19 +51,23 @@ export default function CreateLot() {
 
   useEffect(() => {
     async function loadWarehouses() {
-      try {
-        const data = await fetchWarehouses();
-        setWarehouses(data);
-      } catch {
-        setWarehouses([]);
+      if (!warehouses.length) {
+        try {
+          const data = await fetchWarehouses();
+          setWarehouses(data);
+        } catch {
+          setWarehouses([]);
+        }
       }
     }
     async function loadVarieties() {
-      try {
-        const data = await fetchVarieties();
-        setVarieties(data);
-      } catch {
-        setVarieties([]);
+      if (!varieties.length) {
+        try {
+          const data = await fetchVarieties();
+          setVarieties(data);
+        } catch {
+          setVarieties([]);
+        }
       }
     }
     loadWarehouses();
@@ -95,16 +111,31 @@ export default function CreateLot() {
     }
     setLoading(true);
     try {
-      await createLot({
-        ...form,
-        storageDate: form.storageDate ? new Date(form.storageDate) : undefined,
-        expiryDate: form.expiryDate ? new Date(form.expiryDate) : undefined,
-        quantityOnHold: 0,
-      });
-      showSuccess("Lot created!");
+      if (editLot) {
+        // Update
+        await updateLot(editLot.id, {
+          ...form,
+          storageDate: form.storageDate
+            ? new Date(form.storageDate)
+            : undefined,
+          expiryDate: form.expiryDate ? new Date(form.expiryDate) : undefined,
+        });
+        showSuccess("Lot updated!");
+      } else {
+        // Create
+        await createLot({
+          ...form,
+          storageDate: form.storageDate
+            ? new Date(form.storageDate)
+            : undefined,
+          expiryDate: form.expiryDate ? new Date(form.expiryDate) : undefined,
+          quantityOnHold: 0,
+        });
+        showSuccess("Lot created!");
+      }
       setTimeout(() => navigate("/lots"), 1200);
     } catch {
-      showError("Failed to create lot.");
+      showError(editLot ? "Failed to update lot." : "Failed to create lot.");
     }
     setLoading(false);
   };
@@ -124,7 +155,7 @@ export default function CreateLot() {
           className="text-2xl font-bold mb-2 text-center"
           style={{ color: theme.colors.primary }}
         >
-          Create Lot
+          {editLot ? "Edit Lot" : "Create Lot"}
         </h2>
         <Input
           label="Lot Number"
@@ -137,7 +168,7 @@ export default function CreateLot() {
         <Dropdown
           label="Variety"
           required
-          value={form.varietyId}
+          value={form.varietyId || ""}
           onChange={(val) => handleChange("varietyId", val)}
           options={varieties.map((v) => ({ value: v.id, label: v.name }))}
           placeholder="Select variety"
@@ -155,7 +186,7 @@ export default function CreateLot() {
         <Dropdown
           label="Size"
           required
-          value={form.size}
+          value={form.size || ""}
           onChange={(val) => handleChange("size", val)}
           options={SIZE_OPTIONS}
           placeholder="Select size"
@@ -199,7 +230,13 @@ export default function CreateLot() {
             opacity: loading ? 0.7 : 1,
           }}
         >
-          {loading ? "Creating..." : "Create Lot"}
+          {loading
+            ? editLot
+              ? "Updating..."
+              : "Creating..."
+            : editLot
+            ? "Update Lot"
+            : "Create Lot"}
         </button>
       </form>
     </div>
