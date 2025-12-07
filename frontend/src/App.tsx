@@ -12,7 +12,7 @@ import CreateWarehouse from "./pages/CreateWarehouse";
 import Users from "./pages/Users";
 import UserForm from "./pages/UserForm";
 import Varieties from "./pages/Varities";
-import CreateVariety from "./pages/CreateVariety";
+import VarietyForm from "./pages/VarietyForm";
 import Lots from "./pages/Lots";
 import LotForm from "./pages/LotForm";
 
@@ -33,7 +33,7 @@ function App() {
               <Route path="/users" element={<Users />} />
               <Route path="/users/form" element={<UserForm />} />
               <Route path="/varieties" element={<Varieties />} />
-              <Route path="/varieties/create" element={<CreateVariety />} />
+              <Route path="/varieties/form" element={<VarietyForm />} />
               <Route path="/lots" element={<Lots />} />
               <Route path="/lots/form" element={<LotForm />} />
             </Route>

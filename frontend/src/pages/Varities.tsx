@@ -12,6 +12,8 @@ export default function Varieties() {
   const [showFilter, setShowFilter] = useState(false);
   const [filters, setFilters] = useState<Record<string, any>>({});
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const role = user.role;
 
   useEffect(() => {
     async function loadVarieties() {
@@ -28,13 +30,22 @@ export default function Varieties() {
   }, [filters]);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.colors.background }}>
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: theme.colors.background }}
+    >
       <div className="mx-auto max-w-5xl px-4 py-4 sm:py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <FaSeedling className="text-2xl" style={{ color: theme.colors.secondary }} />
-            <h2 className="text-2xl font-bold" style={{ color: theme.colors.primary }}>
+            <FaSeedling
+              className="text-2xl"
+              style={{ color: theme.colors.secondary }}
+            />
+            <h2
+              className="text-2xl font-bold"
+              style={{ color: theme.colors.primary }}
+            >
               Varieties
             </h2>
           </div>
@@ -69,7 +80,7 @@ export default function Varieties() {
                 color: theme.colors.surface,
                 borderRadius: theme.borderRadius.lg,
               }}
-              onClick={() => navigate("/varieties/create")}
+              onClick={() => navigate("/varieties/form")}
             >
               <span className="text-lg font-bold" style={{ lineHeight: 1 }}>
                 +
@@ -91,12 +102,24 @@ export default function Varieties() {
 
         {/* State messages */}
         {loading && (
-          <div className="rounded-lg px-4 py-3 text-sm" style={{ backgroundColor: theme.colors.surface, color: theme.colors.primary }}>
+          <div
+            className="rounded-lg px-4 py-3 text-sm"
+            style={{
+              backgroundColor: theme.colors.surface,
+              color: theme.colors.primary,
+            }}
+          >
             Loading varieties…
           </div>
         )}
         {!loading && varieties.length === 0 && (
-          <div className="rounded-lg px-4 py-6 text-center text-sm" style={{ backgroundColor: theme.colors.surface, color: theme.colors.primary }}>
+          <div
+            className="rounded-lg px-4 py-6 text-center text-sm"
+            style={{
+              backgroundColor: theme.colors.surface,
+              color: theme.colors.primary,
+            }}
+          >
             No varieties found.
           </div>
         )}
@@ -108,14 +131,33 @@ export default function Varieties() {
               <article
                 key={v.id}
                 className="flex items-center gap-3 rounded-2xl border p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4"
-                style={{ backgroundColor: theme.colors.surface, borderColor: theme.colors.accent }}
+                style={{
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.accent,
+                  cursor: role === "Administrator" ? "pointer" : "default",
+                }}
+                onClick={() => {
+                  if (role === "Administrator") {
+                    navigate("/varieties/form", {
+                      state: { variety: v },
+                    });
+                  }
+                }}
               >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base font-semibold sm:h-12 sm:w-12 sm:text-lg"
-                  style={{ background: theme.colors.accent, color: theme.colors.primary }}>
+                <div
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-base font-semibold sm:h-12 sm:w-12 sm:text-lg"
+                  style={{
+                    background: theme.colors.accent,
+                    color: theme.colors.primary,
+                  }}
+                >
                   {v.name?.[0]?.toUpperCase() ?? "V"}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold sm:text-base" style={{ color: theme.colors.primary }}>
+                  <div
+                    className="truncate text-sm font-semibold sm:text-base"
+                    style={{ color: theme.colors.primary }}
+                  >
                     {v.name}
                   </div>
                 </div>

@@ -1,17 +1,27 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { theme } from "../theme";
 import Input from "../components/ui/Input";
-import { createVariety } from "../api";
+import { createVariety, updateVariety } from "../api";
 import { useToast } from "../hooks/toastContext";
 
-export default function CreateVariety() {
+export default function VarietyForm() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
-  const [form, setForm] = useState({ name: "" });
+  const location = useLocation();
+  const editVariety = location.state?.variety;
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const role = user.role;
+
+  const [form, setForm] = useState({ name: editVariety?.name || "" });
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  if (role !== "Administrator") {
+    navigate("/varieties");
+    return null;
+  }
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
@@ -39,11 +49,18 @@ export default function CreateVariety() {
     }
     setLoading(true);
     try {
-      await createVariety(form);
-      showSuccess("Variety created!");
+      if (editVariety) {
+        await updateVariety(editVariety.id, { name: form.name });
+        showSuccess("Variety updated!");
+      } else {
+        await createVariety(form);
+        showSuccess("Variety created!");
+      }
       setTimeout(() => navigate("/varieties"), 1200);
     } catch {
-      showError("Failed to create variety.");
+      showError(
+        editVariety ? "Failed to update variety." : "Failed to create variety."
+      );
     }
     setLoading(false);
   };
@@ -63,7 +80,7 @@ export default function CreateVariety() {
           className="text-2xl font-bold mb-2 text-center"
           style={{ color: theme.colors.primary }}
         >
-          Create Variety
+          {editVariety ? "Edit Variety" : "Create Variety"}
         </h2>
         <Input
           label="Variety Name"
@@ -86,7 +103,13 @@ export default function CreateVariety() {
             opacity: loading ? 0.7 : 1,
           }}
         >
-          {loading ? "Creating..." : "Create Variety"}
+          {loading
+            ? editVariety
+              ? "Updating..."
+              : "Creating..."
+            : editVariety
+            ? "Update Variety"
+            : "Create Variety"}
         </button>
       </form>
     </div>

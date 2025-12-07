@@ -7,6 +7,8 @@ import type {
   OrderUpdate,
   UserCreate,
   UserUpdate,
+  VarietyCreate,
+  VarietyUpdate,
 } from "../types";
 
 // auth api calls
@@ -146,8 +148,16 @@ export async function fetchVarieties(filters = {}) {
   return res.data.varieties || res.data;
 }
 
-export async function createVariety(varietyData: { name: string }) {
+export async function createVariety(varietyData: VarietyCreate) {
   const res = await api.post("/variety/", varietyData);
+  return res.data;
+}
+
+export async function updateVariety(
+  varietyId: string,
+  varietyData: VarietyUpdate
+) {
+  const res = await api.patch(`/variety/${varietyId}`, varietyData);
   return res.data;
 }
 
