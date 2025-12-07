@@ -1,5 +1,10 @@
 import api from "./interceptor";
-import type { GlobalSearchQuery, OrderCreate, UserCreate } from "../types";
+import type {
+  GlobalSearchQuery,
+  OrderCreate,
+  OrderUpdate,
+  UserCreate,
+} from "../types";
 
 // auth api calls
 export async function login(email: string, password: string) {
@@ -33,6 +38,11 @@ export async function completeOrder(orderId: string) {
 
 export async function createOrder(orderData: OrderCreate) {
   const res = await api.post("/order/create", orderData);
+  return res.data;
+}
+
+export async function updateOrder(orderId: string, orderData: OrderUpdate) {
+  const res = await api.patch(`/order/update/${orderId}`, orderData);
   return res.data;
 }
 

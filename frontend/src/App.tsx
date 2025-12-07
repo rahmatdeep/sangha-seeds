@@ -4,7 +4,7 @@ import Orders from "./pages/Orders";
 import Auth from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProfilePage from "./pages/ProfilePage";
-import CreateOrder from "./pages/CreateOrder";
+import OrderForm from "./pages/OrderForm";
 import { ToastProvider } from "./components/ui/ToastProvider";
 import Dashboard from "./pages/Dashboard";
 import Warehouses from "./pages/Warehouses";
@@ -26,7 +26,7 @@ function App() {
             <Route element={<Layout />}>
               <Route path="/" element={<Dashboard />} />
               <Route path="/orders" element={<Orders />} />
-              <Route path="/orders/create" element={<CreateOrder />} />
+              <Route path="/orders/form" element={<OrderForm />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/warehouses" element={<Warehouses />} />
               <Route path="/warehouses/create" element={<CreateWarehouse />} />

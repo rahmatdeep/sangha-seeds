@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { theme } from "../theme";
 import axios from "axios";
-import { assignEmployee, createOrder } from "../api";
-import type { Lot, Warehouse, User } from "../types";
+import { assignEmployee, createOrder, updateOrder } from "../api";
+import type { Lot, Warehouse, User, MyOrdersResponseOrder } from "../types";
 import Input from "../components/ui/Input";
 import NumberInput from "../components/ui/NumberInput";
 import Dropdown from "../components/ui/Dropdown";
@@ -21,7 +21,7 @@ interface FormErrors {
   remarks?: string;
 }
 
-export default function CreateOrder() {
+export default function OrderForm() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -36,13 +36,22 @@ export default function CreateOrder() {
   const warehouses = location.state?.warehouses || [];
   const employees = location.state?.employees || [];
   const managers = location.state?.managers || [];
-  const [lotId, setLotId] = useState("");
-  const [warehouseId, setWarehouseId] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [destination, setDestination] = useState("");
-  const [remarks, setRemarks] = useState("");
-  const [assignedEmployees, setAssignedEmployees] = useState<string[]>([]);
-  const [assignedManager, setAssignedManager] = useState<string>("");
+  const editOrder: MyOrdersResponseOrder | undefined = location.state?.order;
+
+  // Prefill fields if editing
+  const [lotId, setLotId] = useState(editOrder?.lotId || "");
+  const [warehouseId, setWarehouseId] = useState(editOrder?.warehouseId || "");
+  const [quantity, setQuantity] = useState(
+    editOrder?.quantity?.toString() || ""
+  );
+  const [destination, setDestination] = useState(editOrder?.destination || "");
+  const [remarks, setRemarks] = useState(editOrder?.remarks || "");
+  const [assignedEmployees, setAssignedEmployees] = useState<string[]>(
+    editOrder?.assignedEmployees?.map((e) => e.id) || []
+  );
+  const [assignedManager, setAssignedManager] = useState(
+    editOrder?.assignedManager?.id || ""
+  );
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -133,33 +142,53 @@ export default function CreateOrder() {
     setLoading(true);
 
     try {
-      // Create order
-      const res = await createOrder({
-        lotId,
-        warehouseId,
-        quantity: Number(quantity),
-        destination,
-        remarks,
-        createdById: user.id,
-        status: "placed",
-        isComplete: false,
-        isAcknowledged: false,
-        assignedManagerId: assignedManager,
-      });
-      const orderId = res.message;
-
-      // Assign employees
-      for (const employeeId of assignedEmployees) {
-        await assignEmployee(orderId, employeeId);
+      if (editOrder) {
+        // Edit mode
+        await updateOrder(editOrder.id, {
+          lotId,
+          warehouseId,
+          quantity: Number(quantity),
+          destination,
+          remarks,
+          assignedManagerId: assignedManager,
+        });
+        // Assign employees (optional: update logic if needed)
+        for (const employeeId of assignedEmployees) {
+          await assignEmployee(editOrder.id, employeeId);
+        }
+        showSuccess("Order updated!");
+        setTimeout(() => navigate("/orders"), 1200);
+      } else {
+        // Create mode
+        const res = await createOrder({
+          lotId,
+          warehouseId,
+          quantity: Number(quantity),
+          destination,
+          remarks,
+          createdById: user.id,
+          status: "placed",
+          isComplete: false,
+          isAcknowledged: false,
+          assignedManagerId: assignedManager,
+        });
+        const orderId = res.message;
+        for (const employeeId of assignedEmployees) {
+          await assignEmployee(orderId, employeeId);
+        }
+        showSuccess("Order created and assignments done!");
+        setTimeout(() => navigate("/orders"), 1200);
       }
-
-      showSuccess("Order created and assignments done!");
-      setTimeout(() => navigate("/orders"), 1200);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        showError(err.response?.data?.message || "Failed to create order.");
+        showError(
+          err.response?.data?.message ||
+            (editOrder ? "Failed to update order." : "Failed to create order.")
+        );
       } else {
-        showError("Failed to create order.");
+        showError(
+          editOrder ? "Failed to update order." : "Failed to create order."
+        );
       }
     }
     setLoading(false);
@@ -180,7 +209,7 @@ export default function CreateOrder() {
           className="text-2xl font-bold mb-2 text-center"
           style={{ color: theme.colors.primary }}
         >
-          Create Order
+          {editOrder ? "Edit Order" : "Create Order"}
         </h2>
 
         <Dropdown
@@ -303,7 +332,13 @@ export default function CreateOrder() {
             opacity: loading ? 0.7 : 1,
           }}
         >
-          {loading ? "Creating..." : "Create Order"}
+          {loading
+            ? editOrder
+              ? "Updating..."
+              : "Creating..."
+            : editOrder
+            ? "Update Order"
+            : "Create Order"}
         </button>
       </form>
     </div>

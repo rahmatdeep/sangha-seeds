@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { MyOrdersResponseOrder } from "../types";
+import type { Lot, MyOrdersResponseOrder, User, Warehouse } from "../types";
 import { theme } from "../theme";
 import { acknowledgeOrder, completeOrder } from "../api";
 import {
@@ -11,17 +11,28 @@ import {
   IoEllipseOutline,
 } from "react-icons/io5";
 import { useToast } from "../hooks/toastContext";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderCard({
   order,
+  lots = [],
+  warehouses = [],
+  employees = [],
+  managers = [],
   onStatusChange,
 }: {
   order: MyOrdersResponseOrder;
+  lots?: Lot[];
+  warehouses?: Warehouse[];
+  employees?: User[];
+  managers?: User[];
   onStatusChange?: () => void;
 }) {
+  const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   const userId = user.id;
+  const role = user.role;
 
   const [showTimeline, setShowTimeline] = useState(false);
   const [showAssignments, setShowAssignments] = useState(false);
@@ -87,14 +98,31 @@ export default function OrderCard({
 
   return (
     <div
-      className="rounded-xl shadow-md mb-3 overflow-hidden"
+      className={`rounded-xl shadow-md mb-3 overflow-hidden ${
+        role === "Administrator" || role === "Manager" ? "cursor-pointer" : ""
+      }`}
       style={{
         background: theme.colors.surface,
         border: `1px solid ${theme.colors.accent}`,
       }}
     >
       {/* Header - Always Visible */}
-      <div className="p-4">
+      <div
+        className="p-4"
+        onClick={() => {
+          if (role === "Administrator" || role === "Manager") {
+            navigate("/orders/form", {
+              state: {
+                order,
+                lots,
+                warehouses,
+                employees,
+                managers,
+              },
+            });
+          }
+        }}
+      >
         <div className="flex justify-between items-start gap-3 mb-3">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-1">
@@ -227,12 +255,15 @@ export default function OrderCard({
             <div className="mb-3">
               {order.status === "placed" && (
                 <button
-                  className="w-full px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   style={{
                     background: theme.colors.secondary,
                     color: theme.colors.surface,
                   }}
-                  onClick={handleAcknowledge}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleAcknowledge();
+                  }}
                   disabled={loading}
                 >
                   {loading ? "Processing..." : "Mark as Acknowledged"}
@@ -240,12 +271,15 @@ export default function OrderCard({
               )}
               {order.status === "acknowledged" && (
                 <button
-                  className="w-full px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full px-4 py-2.5 rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                   style={{
                     background: theme.colors.success,
                     color: theme.colors.surface,
                   }}
-                  onClick={handleComplete}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleComplete();
+                  }}
                   disabled={loading}
                 >
                   {loading ? "Processing..." : "Mark as Completed"}
@@ -260,7 +294,7 @@ export default function OrderCard({
         {/* Timeline Accordion */}
         <button
           onClick={() => setShowTimeline(!showTimeline)}
-          className="w-full px-4 py-3 flex items-center justify-between transition-colors hover:bg-opacity-50"
+          className="w-full px-4 py-3 flex items-center justify-between transition-colors hover:bg-opacity-50 cursor-pointer"
           style={{
             backgroundColor: showTimeline
               ? theme.colors.accent + "15"
@@ -281,7 +315,7 @@ export default function OrderCard({
         </button>
         {showTimeline && (
           <div
-            className="px-4 pb-3 space-y-2 text-xs"
+            className="px-4 pb-3 space-y-2 text-xs cursor-default"
             style={{ backgroundColor: theme.colors.background + "50" }}
           >
             <div className="flex justify-between items-start gap-2">
@@ -356,7 +390,7 @@ export default function OrderCard({
         {/* Assignments Accordion */}
         <button
           onClick={() => setShowAssignments(!showAssignments)}
-          className="w-full px-4 py-3 flex items-center justify-between transition-colors hover:bg-opacity-50"
+          className="w-full px-4 py-3 flex items-center justify-between transition-colors hover:bg-opacity-50 cursor-pointer"
           style={{
             borderTop: `1px solid ${theme.colors.accent}40`,
             backgroundColor: showAssignments
@@ -378,7 +412,7 @@ export default function OrderCard({
         </button>
         {showAssignments && (
           <div
-            className="px-4 pb-3 space-y-2 text-sm"
+            className="px-4 pb-3 space-y-2 text-sm cursor-default"
             style={{ backgroundColor: theme.colors.background + "50" }}
           >
             <div>

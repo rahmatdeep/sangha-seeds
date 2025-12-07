@@ -152,7 +152,7 @@ export default function Orders() {
                 borderRadius: theme.borderRadius.lg,
               }}
               onClick={() =>
-                navigate("/orders/create", {
+                navigate("/orders/form", {
                   state: { lots, warehouses, employees, managers },
                 })
               }
@@ -262,6 +262,10 @@ export default function Orders() {
             <OrderCard
               key={order.id}
               order={order}
+              lots={lots}
+              warehouses={warehouses}
+              employees={employees}
+              managers={managers}
               onStatusChange={() => loadOrders(filters)}
             />
           ))}
