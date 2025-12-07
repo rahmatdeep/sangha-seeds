@@ -9,10 +9,22 @@ import {
   FaStickyNote,
   FaSignOutAlt,
 } from "react-icons/fa";
+import type { WarehouseResponse, User } from "../types";
+import { useEffect, useState } from "react";
+import { fetchWarehouses } from "../api";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const [warehouse, setWarehouse] = useState<WarehouseResponse | null>(null);
+
+  useEffect(() => {
+    if (user.warehouseid) {
+      fetchWarehouses({ id: user.warehouseid }).then((ws) => {
+        setWarehouse(ws[0]);
+      });
+    }
+  }, [user.warehouseid]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -35,11 +47,11 @@ export default function ProfilePage() {
             {/* Animated Avatar */}
             <div className="relative group">
               <div
-                className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"
+                className="absolute inset-0 rounded-full opacity-0"
                 style={{ background: theme.colors.secondary }}
               />
               <FaUserCircle
-                className="relative transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-6"
+                className="relative transform transition-all duration-300"
                 style={{ fontSize: "5rem", color: theme.colors.secondary }}
               />
             </div>
@@ -175,6 +187,114 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* Warehouse Info */}
+        {warehouse && (
+          <div
+            className="rounded-2xl shadow-lg p-5 mb-4 transform transition-all duration-300 hover:shadow-xl"
+            style={{ background: theme.colors.surface }}
+          >
+            <h3
+              className="text-sm font-semibold uppercase tracking-wide mb-4 opacity-70"
+              style={{ color: theme.colors.primary }}
+            >
+              Assigned Warehouse
+            </h3>
+
+            {/* Warehouse Name & Location */}
+            <div
+              className="flex items-center gap-3 p-3 rounded-lg mb-3"
+              style={{
+                background: theme.colors.background,
+                border: `1px solid ${theme.colors.accent}`,
+              }}
+            >
+              <div
+                className="p-2 rounded-lg shrink-0"
+                style={{ background: theme.colors.surface }}
+              >
+                <FaMapMarkerAlt
+                  style={{ color: theme.colors.info, fontSize: "1rem" }}
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: theme.colors.primary }}
+                >
+                  {warehouse.name}
+                </p>
+                <p
+                  className="text-xs opacity-70"
+                  style={{ color: theme.colors.primary }}
+                >
+                  {warehouse.location}
+                </p>
+              </div>
+            </div>
+
+            {/* Manager */}
+            {warehouse.assignedManager && (
+              <div className="mb-3">
+                <p
+                  className="text-xs font-semibold uppercase opacity-60 mb-2"
+                  style={{ color: theme.colors.primary }}
+                >
+                  Manager
+                </p>
+                <p
+                  className="text-sm flex items-center gap-2"
+                  style={{ color: theme.colors.primary }}
+                >
+                  <FaUserShield style={{ color: theme.colors.warning }} />
+                  <span className="font-medium">
+                    {warehouse.assignedManager.name}
+                  </span>
+                  <span className="text-xs opacity-70">
+                    ({warehouse.assignedManager.mobile})
+                  </span>
+                </p>
+              </div>
+            )}
+
+            {/* Employees */}
+            {warehouse.assignedEmployees &&
+              warehouse.assignedEmployees.filter(
+                (emp: User) => emp.id !== user.id
+              ).length > 0 && (
+                <div>
+                  <p
+                    className="text-xs font-semibold uppercase opacity-60 mb-2"
+                    style={{ color: theme.colors.primary }}
+                  >
+                    Other Employees
+                  </p>
+                  <ul className="space-y-1.5">
+                    {warehouse.assignedEmployees
+                      .filter((emp: User) => emp.id !== user.id)
+                      .map((emp: User) => (
+                        <li
+                          key={emp.id}
+                          className="text-sm flex items-center gap-2"
+                          style={{ color: theme.colors.primary }}
+                        >
+                          <FaUserCircle
+                            style={{
+                              color: theme.colors.secondary,
+                              fontSize: "0.9rem",
+                            }}
+                          />
+                          <span className="font-medium">{emp.name}</span>
+                          <span className="text-xs opacity-70">
+                            ({emp.mobile})
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              )}
+          </div>
+        )}
 
         {/* Additional Details Card - Only show if exists */}
         {(user.areaOfResponsibility || user.remarks) && (
