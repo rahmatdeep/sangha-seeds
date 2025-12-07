@@ -10,7 +10,7 @@ import Dashboard from "./pages/Dashboard";
 import Warehouses from "./pages/Warehouses";
 import CreateWarehouse from "./pages/CreateWarehouse";
 import Users from "./pages/Users";
-import CreateUser from "./pages/CreateUser";
+import UserForm from "./pages/UserForm";
 import Varieties from "./pages/Varities";
 import CreateVariety from "./pages/CreateVariety";
 import Lots from "./pages/Lots";
@@ -31,7 +31,7 @@ function App() {
               <Route path="/warehouses" element={<Warehouses />} />
               <Route path="/warehouses/create" element={<CreateWarehouse />} />
               <Route path="/users" element={<Users />} />
-              <Route path="/users/create" element={<CreateUser />} />
+              <Route path="/users/form" element={<UserForm />} />
               <Route path="/varieties" element={<Varieties />} />
               <Route path="/varieties/create" element={<CreateVariety />} />
               <Route path="/lots" element={<Lots />} />

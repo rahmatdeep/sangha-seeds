@@ -6,6 +6,7 @@ import type {
   OrderCreate,
   OrderUpdate,
   UserCreate,
+  UserUpdate,
 } from "../types";
 
 // auth api calls
@@ -99,6 +100,15 @@ export async function createUser(userData: UserCreate) {
   const res = await api.post("/user/create", userData);
   return res.data;
 }
+
+export async function updateUser(
+  userId: string,
+  userData: Partial<UserUpdate>
+) {
+  const res = await api.patch(`/user/update/${userId}`, userData);
+  return res.data;
+}
+
 export async function fetchUsersForTab(
   tab: "Administrator" | "Managers" | "Employee",
   filters: Record<string, any> = {}

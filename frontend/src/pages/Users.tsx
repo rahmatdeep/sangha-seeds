@@ -100,7 +100,7 @@ export default function Users() {
           </div>
           <div className="flex gap-2">
             <button
-              className="relative px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:opacity-90"
+              className="relative px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:opacity-90 cursor-pointer"
               style={{
                 backgroundColor: theme.colors.accent,
                 color: theme.colors.primary,
@@ -124,13 +124,13 @@ export default function Users() {
             </button>
             {role === "Administrator" && (
               <button
-                className="px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:opacity-90"
+                className="px-4 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:opacity-90 cursor-pointer"
                 style={{
                   backgroundColor: theme.colors.secondary,
                   color: theme.colors.surface,
                   borderRadius: theme.borderRadius.lg,
                 }}
-                onClick={() => navigate("/users/create")}
+                onClick={() => navigate("/users/form")}
               >
                 <span className="text-lg font-bold" style={{ lineHeight: 1 }}>
                   +
@@ -163,7 +163,7 @@ export default function Users() {
             return (
               <button
                 key={tab}
-                className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium sm:px-4 sm:text-sm transition-all"
+                className="inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium sm:px-4 sm:text-sm transition-all cursor-pointer"
                 style={{
                   backgroundColor: isActive
                     ? theme.colors.secondary
@@ -217,6 +217,14 @@ export default function Users() {
                 style={{
                   backgroundColor: theme.colors.surface,
                   borderColor: theme.colors.accent,
+                  cursor: role === "Administrator" ? "pointer" : "default",
+                }}
+                onClick={() => {
+                  if (role === "Administrator") {
+                    navigate("/users/form", {
+                      state: { user: u, warehouses },
+                    });
+                  }
                 }}
               >
                 <div className="relative p-4 sm:p-5">

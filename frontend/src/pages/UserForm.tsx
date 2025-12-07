@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { theme } from "../theme";
 import Input from "../components/ui/Input";
 import Dropdown from "../components/ui/Dropdown";
 import TextArea from "../components/ui/TextArea";
 import { useToast } from "../hooks/toastContext";
-import { UserRolesSchema, type UserCreate } from "../types";
-import { createUser, fetchWarehouses } from "../api";
+import {
+  UserRolesSchema,
+  type UserCreate,
+  type User,
+  type Warehouse,
+} from "../types";
+import { createUser, fetchWarehouses, updateUser } from "../api";
 import axios from "axios";
 
 const ROLE_OPTIONS = UserRolesSchema.options.map((role) => ({
@@ -14,36 +19,39 @@ const ROLE_OPTIONS = UserRolesSchema.options.map((role) => ({
   label: role,
 }));
 
-export default function CreateUser() {
+export default function UserForm() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
-  const role = user.role;
-
-  const [form, setForm] = useState<UserCreate>({
-    name: "",
-    email: "",
+  const location = useLocation();
+  const editUser: User | undefined = location.state?.user;
+  const [form, setForm] = useState<Partial<UserCreate>>({
+    name: editUser?.name || "",
+    email: editUser?.email || "",
     password: "",
-    mobile: "",
-    role: "Employee",
-    areaOfResponsibility: "",
-    warehouseid: "",
-    remarks: "",
+    mobile: editUser?.mobile || "",
+    role: editUser?.role || "Employee",
+    areaOfResponsibility: editUser?.areaOfResponsibility || "",
+    warehouseid: editUser?.warehouseid || "",
+    remarks: editUser?.remarks || "",
   });
-  const [warehouses, setWarehouses] = useState<{ id: string; name: string }[]>(
-    []
+  const [warehouses, setWarehouses] = useState<Warehouse[]>(
+    location.state?.warehouses || []
   );
   const [loading, setLoading] = useState(false);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const role = user.role;
 
   useEffect(() => {
     async function loadWarehouses() {
-      try {
-        const data = await fetchWarehouses();
-        setWarehouses(data);
-      } catch {
-        setWarehouses([]);
+      if (!warehouses.length) {
+        try {
+          const data = await fetchWarehouses();
+          setWarehouses(data);
+        } catch {
+          setWarehouses([]);
+        }
       }
     }
     loadWarehouses();
@@ -58,9 +66,9 @@ export default function CreateUser() {
     const errors: Record<string, string> = {};
     if (!form?.name) errors.name = "Name is required";
     if (!form?.email) errors.email = "Email is required";
-    if (!form?.password || form.password.length < 8)
+    if (!editUser && (!form?.password || form.password.length < 8))
       errors.password = "Password must be at least 8 characters";
-    if (!form?.mobile || form.mobile.length < 10 || form.mobile.length > 10)
+    if (!form?.mobile || form.mobile.length !== 10)
       errors.mobile = "Mobile number must be exactly 10 digits";
     if (!form?.role) errors.role = "Role is required";
     setFormErrors(errors);
@@ -93,14 +101,21 @@ export default function CreateUser() {
     }
     setLoading(true);
     try {
-      await createUser(form);
-      showSuccess("User created!");
+      if (editUser) {
+        // PATCH update
+        const { password, ...updateData } = form;
+        await updateUser(editUser.id, updateData);
+        showSuccess("User updated!");
+      } else {
+        await createUser(form as UserCreate);
+        showSuccess("User created!");
+      }
       setTimeout(() => navigate("/users"), 1200);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        showError(err.response?.data?.message || "Failed to create user.");
+        showError(err.response?.data?.message || "Failed to save user.");
       } else {
-        showError("Failed to create user.");
+        showError("Failed to save user.");
       }
     }
     setLoading(false);
@@ -121,7 +136,7 @@ export default function CreateUser() {
           className="text-2xl font-bold mb-2 text-center"
           style={{ color: theme.colors.primary }}
         >
-          Create User
+          {editUser ? "Edit User" : "Create User"}
         </h2>
 
         <Input
@@ -143,15 +158,17 @@ export default function CreateUser() {
           placeholder="Enter email"
         />
 
-        <Input
-          label="Password"
-          required
-          type="password"
-          value={form.password}
-          onChange={(e) => handleChange("password", e.target.value)}
-          error={touched.password ? formErrors.password : undefined}
-          placeholder="Enter password"
-        />
+        {!editUser && (
+          <Input
+            label="Password"
+            required
+            type="password"
+            value={form.password}
+            onChange={(e) => handleChange("password", e.target.value)}
+            error={touched.password ? formErrors.password : undefined}
+            placeholder="Enter password"
+          />
+        )}
 
         <Input
           label="Mobile"
@@ -166,7 +183,7 @@ export default function CreateUser() {
         <Dropdown
           label="Role"
           required
-          value={form.role}
+          value={form.role || ""}
           onChange={(val) => handleChange("role", val)}
           options={ROLE_OPTIONS}
           placeholder="Select role"
@@ -212,7 +229,13 @@ export default function CreateUser() {
             opacity: loading ? 0.7 : 1,
           }}
         >
-          {loading ? "Creating..." : "Create User"}
+          {loading
+            ? editUser
+              ? "Updating..."
+              : "Creating..."
+            : editUser
+            ? "Update User"
+            : "Create User"}
         </button>
       </form>
     </div>
