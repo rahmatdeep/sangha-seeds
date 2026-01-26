@@ -37,38 +37,160 @@ export default function Auth() {
       {/* Left Side - Image/Brand (Hidden on mobile, 50% on desktop) */}
       <div
         className="hidden md:flex md:w-1/2 flex-col items-center justify-center p-12 relative overflow-hidden"
-        style={{ background: theme.colors.secondary }}
+        style={{
+          background: `linear-gradient(135deg, ${theme.colors.secondary} 0%, ${theme.colors.secondaryDark} 100%)`,
+        }}
       >
-        {/* Background pattern */}
+        {/* Animated gradient overlay */}
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            background: `radial-gradient(circle at 50% 50%, ${theme.colors.secondaryLight}, transparent 70%)`,
+            animation: "pulse-glow 4s ease-in-out infinite",
+          }}
+        />
+
+        {/* Floating seed particles */}
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute"
+            style={{
+              left: `${15 + i * 12}%`,
+              top: `${10 + (i % 3) * 30}%`,
+              animation: `float-seed ${3 + i * 0.5}s ease-in-out infinite`,
+              animationDelay: `${i * 0.3}s`,
+              opacity: 0.15,
+            }}
+          >
+            <FaSeedling
+              style={{
+                fontSize: `${1 + (i % 3) * 0.5}rem`,
+                color: theme.colors.surface,
+                filter: "blur(0.5px)",
+              }}
+            />
+          </div>
+        ))}
+
+        {/* Background pattern with subtle animation */}
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
             style={{
-              backgroundImage: `radial-gradient(circle, ${theme.colors.primary} 1px, transparent 1px)`,
+              backgroundImage: `radial-gradient(circle, ${theme.colors.primaryDark} 1px, transparent 1px)`,
               backgroundSize: "30px 30px",
+              animation: "drift 20s linear infinite",
             }}
           />
         </div>
 
-        {/* Content */}
-        <div className="relative z-10 text-center">
-          <FaSeedling
-            className="mx-auto mb-6"
-            style={{ fontSize: "5rem", color: theme.colors.surface }}
-          />
+        {/* Content with entrance animation */}
+        <div
+          className="relative z-10 text-center"
+          style={{
+            animation: "fade-in-up 0.8s ease-out",
+          }}
+        >
+          <div
+            style={{
+              animation: "scale-pulse 3s ease-in-out infinite",
+            }}
+          >
+            <FaSeedling
+              className="mx-auto mb-6"
+              style={{
+                fontSize: "5rem",
+                color: theme.colors.surface,
+                filter: "drop-shadow(0 4px 12px rgba(0,0,0,0.2))",
+              }}
+            />
+          </div>
           <h1
             className="text-4xl font-bold mb-4"
-            style={{ color: theme.colors.surface }}
+            style={{
+              color: theme.colors.surface,
+              textShadow: "0 2px 8px rgba(0,0,0,0.1)",
+            }}
           >
             Sangha Seeds
           </h1>
           <p
-            className="text-sm mt-2 opacity-90"
-            style={{ color: theme.colors.surface }}
+            className="text-base mt-2 opacity-90 max-w-sm mx-auto"
+            style={{
+              color: theme.colors.surface,
+              lineHeight: "1.6",
+            }}
           >
             Manage your potato farm operations with ease
           </p>
         </div>
+
+        {/* CSS Keyframes */}
+        <style>{`
+          @keyframes float-seed {
+            0%, 100% {
+              transform: translateY(0px) translateX(0px) rotate(0deg);
+            }
+            33% {
+              transform: translateY(-20px) translateX(10px) rotate(120deg);
+            }
+            66% {
+              transform: translateY(-10px) translateX(-10px) rotate(240deg);
+            }
+          }
+
+          @keyframes pulse-glow {
+            0%, 100% {
+              opacity: 0.3;
+              transform: scale(1);
+            }
+            50% {
+              opacity: 0.5;
+              transform: scale(1.1);
+            }
+          }
+
+          @keyframes drift {
+            from {
+              transform: translate(0, 0);
+            }
+            to {
+              transform: translate(30px, 30px);
+            }
+          }
+
+          @keyframes scale-pulse {
+            0%, 100% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.05);
+            }
+          }
+
+          @keyframes fade-in-up {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
+          @keyframes slide-in-right {
+            from {
+              opacity: 0;
+              transform: translateX(30px);
+            }
+            to {
+              opacity: 1;
+              transform: translateX(0);
+            }
+          }
+        `}</style>
       </div>
 
       {/* Right Side - Login Form */}
@@ -76,7 +198,12 @@ export default function Auth() {
         className="flex-1 md:w-1/2 flex items-center justify-center p-6 md:p-12"
         style={{ background: theme.colors.background }}
       >
-        <div className="w-full max-w-md">
+        <div
+          className="w-full max-w-md"
+          style={{
+            animation: "slide-in-right 0.8s ease-out",
+          }}
+        >
           {/* Mobile-only header */}
           <div className="md:hidden text-center mb-8">
             <FaSeedling
@@ -93,7 +220,7 @@ export default function Auth() {
 
           {/* Login Form Card */}
           <div
-            className="rounded-2xl shadow-2xl p-8"
+            className="rounded-2xl shadow-2xl p-10"
             style={{ background: theme.colors.surface }}
           >
             <h2
@@ -103,13 +230,13 @@ export default function Auth() {
               Welcome Back
             </h2>
             <p
-              className="text-sm mb-6"
+              className="text-sm mb-8"
               style={{ color: theme.colors.primary, opacity: 0.6 }}
             >
               Sign in to continue to your dashboard
             </p>
 
-            <form onSubmit={handleLogin} className="flex flex-col gap-5">
+            <form onSubmit={handleLogin} className="flex flex-col gap-6">
               {/* Email Input */}
               <div className="flex flex-col gap-2">
                 <label
@@ -120,7 +247,7 @@ export default function Auth() {
                 </label>
                 <div className="relative">
                   <FaEnvelope
-                    className="absolute left-3 top-1/2 -translate-y-1/2"
+                    className="absolute left-4 top-1/2 -translate-y-1/2"
                     style={{ color: theme.colors.primary, opacity: 0.4 }}
                   />
                   <input
@@ -129,16 +256,16 @@ export default function Auth() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 outline-none transition-all focus:border-opacity-100"
+                    className="w-full pl-11 pr-4 py-3.5 rounded-lg border-2 outline-none transition-all focus:border-opacity-100"
                     style={{
-                      borderColor: theme.colors.accent,
+                      borderColor: theme.colors.accentDark,
                       color: theme.colors.primary,
                     }}
                     onFocus={(e) =>
                       (e.target.style.borderColor = theme.colors.secondary)
                     }
                     onBlur={(e) =>
-                      (e.target.style.borderColor = theme.colors.accent)
+                      (e.target.style.borderColor = theme.colors.accentDark)
                     }
                   />
                 </div>
@@ -154,7 +281,7 @@ export default function Auth() {
                 </label>
                 <div className="relative">
                   <FaLock
-                    className="absolute left-3 top-1/2 -translate-y-1/2"
+                    className="absolute left-4 top-1/2 -translate-y-1/2"
                     style={{ color: theme.colors.primary, opacity: 0.4 }}
                   />
                   <input
@@ -163,16 +290,16 @@ export default function Auth() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border-2 outline-none transition-all"
+                    className="w-full pl-11 pr-4 py-3.5 rounded-lg border-2 outline-none transition-all"
                     style={{
-                      borderColor: theme.colors.accent,
+                      borderColor: theme.colors.accentDark,
                       color: theme.colors.primary,
                     }}
                     onFocus={(e) =>
                       (e.target.style.borderColor = theme.colors.secondary)
                     }
                     onBlur={(e) =>
-                      (e.target.style.borderColor = theme.colors.accent)
+                      (e.target.style.borderColor = theme.colors.accentDark)
                     }
                   />
                 </div>
@@ -181,10 +308,11 @@ export default function Auth() {
               {/* Error Message */}
               {error && (
                 <div
-                  className="text-sm px-4 py-2 rounded-lg"
+                  className="text-sm px-4 py-3 rounded-lg"
                   style={{
                     color: theme.colors.error,
                     background: `${theme.colors.error}15`,
+                    border: `1px solid ${theme.colors.error}30`,
                   }}
                 >
                   {error}
@@ -195,11 +323,25 @@ export default function Auth() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded-lg font-semibold text-white transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3.5 rounded-lg font-semibold text-white transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                 style={{
                   background: loading
                     ? theme.colors.accent
                     : theme.colors.secondary,
+                  transform: loading ? "scale(0.98)" : "scale(1)",
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.transform = "scale(1.02)";
+                    e.currentTarget.style.background =
+                      theme.colors.secondaryDark;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.background = theme.colors.secondary;
+                  }
                 }}
               >
                 {loading ? (
@@ -214,7 +356,7 @@ export default function Auth() {
             </form>
 
             {/* Footer */}
-            <div className="mt-6 text-center">
+            <div className="mt-8 text-center">
               <p
                 className="text-xs"
                 style={{ color: theme.colors.primary, opacity: 0.5 }}

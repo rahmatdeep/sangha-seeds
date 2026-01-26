@@ -67,7 +67,7 @@ export default function Header() {
             onClick={handleSearchClick}
             className="p-2.5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95"
             style={{
-              background: theme.colors.accent,
+              background: theme.colors.background,
               color: theme.colors.primary,
             }}
             aria-label="Search"
@@ -80,7 +80,7 @@ export default function Header() {
             onClick={handleNotificationClick}
             className="p-2.5 rounded-full transition-all duration-300 hover:scale-110 active:scale-95 relative group"
             style={{
-              background: theme.colors.accent,
+              background: theme.colors.background,
               color: theme.colors.primary,
             }}
             aria-label="Notifications"

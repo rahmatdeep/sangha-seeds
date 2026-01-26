@@ -7,7 +7,6 @@ import {
   FaBars,
   FaChevronLeft,
   FaPlus,
-  FaTimes,
   FaWarehouse,
   FaSeedling,
   FaLayerGroup,
@@ -94,7 +93,7 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
   useEffect(() => {
     if (isEmployee) {
       const activeIndex = mobileNavItems.findIndex(
-        (item) => item.to === location.pathname
+        (item) => item.to === location.pathname,
       );
       if (activeIndex !== -1 && navRefs.current[activeIndex]) {
         const activeTab = navRefs.current[activeIndex];
@@ -152,7 +151,7 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
               }
               style={({ isActive }) => ({
                 color: isActive ? theme.colors.secondary : theme.colors.primary,
-                background: isActive ? theme.colors.accent : "transparent",
+                background: isActive ? theme.colors.background : "transparent",
               })}
             >
               {({ isActive }) => (
@@ -161,7 +160,7 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
                   <div
                     className="absolute inset-0 transition-all duration-300 ease-out opacity-0 group-hover:opacity-100"
                     style={{
-                      background: `${theme.colors.accent}60`,
+                      background: `${theme.colors.background}60`,
                       transform: isActive ? "scale(1)" : "scale(0)",
                     }}
                   />
@@ -345,14 +344,14 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
                     className="w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 active:scale-90 hover:scale-105 relative z-50"
                     style={{
                       background: fabOpen
-                        ? theme.colors.secondary
-                        : theme.colors.accent,
+                        ? theme.colors.accent
+                        : theme.colors.secondary,
                       color: fabOpen
-                        ? theme.colors.surface
-                        : theme.colors.primary,
+                        ? theme.colors.primary
+                        : theme.colors.surface,
                       boxShadow: fabOpen
-                        ? `0 8px 24px ${theme.colors.secondary}50`
-                        : `0 6px 18px ${theme.colors.primary}30`,
+                        ? `0 6px 18px ${theme.colors.primary}30`
+                        : `0 8px 24px ${theme.colors.secondary}50`,
                     }}
                     onClick={() => {
                       setFabOpen(!fabOpen);
@@ -365,7 +364,7 @@ export default function Navbar({ expanded, setExpanded }: NavbarProps) {
                         transform: fabOpen ? "rotate(45deg)" : "rotate(0deg)",
                       }}
                     >
-                      {fabOpen ? <FaTimes /> : <FaPlus />}
+                      <FaPlus />
                     </span>
                   </button>
 

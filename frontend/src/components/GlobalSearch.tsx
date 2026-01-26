@@ -210,7 +210,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             <button
               onClick={onClose}
               className="p-1.5 rounded-full transition-all hover:scale-110"
-              style={{ background: theme.colors.accent }}
+              style={{ background: theme.colors.accent+'66' }}
             >
               <FaTimes
                 style={{ color: theme.colors.primary }}
@@ -232,7 +232,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                   style={{
                     background: isActive
                       ? theme.colors.secondary
-                      : theme.colors.accent,
+                      : theme.colors.background,
                     color: isActive
                       ? theme.colors.surface
                       : theme.colors.primary,
@@ -273,7 +273,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
             <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center">
               <div
                 className="p-6 rounded-full mb-4 inline-flex"
-                style={{ background: theme.colors.accent }}
+                style={{ background: theme.colors.accent+"66" }}
               >
                 <FaSearch
                   className="text-4xl md:text-5xl"
@@ -294,7 +294,7 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                   <kbd
                     className="px-3 py-1.5 rounded font-mono font-medium shadow-sm"
                     style={{
-                      background: theme.colors.accent,
+                      background: theme.colors.accent+"66",
                       color: theme.colors.primary,
                       border: `1px solid ${theme.colors.primary}20`,
                     }}
@@ -311,17 +311,17 @@ export default function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                     <kbd
                       className="px-2 py-1.5 rounded font-mono font-medium shadow-sm"
                       style={{
-                        background: theme.colors.accent,
+                        background: theme.colors.accent+"66",
                         color: theme.colors.primary,
                         border: `1px solid ${theme.colors.primary}20`,
                       }}
                     >
                       <FaChevronUp />
-                    </kbd>
+                    </kbd>  
                     <kbd
                       className="px-2 py-1.5 rounded font-mono font-medium shadow-sm"
                       style={{
-                        background: theme.colors.accent,
+                        background: theme.colors.accent+"66",
                         color: theme.colors.primary,
                         border: `1px solid ${theme.colors.primary}20`,
                       }}
@@ -526,14 +526,14 @@ function ResultSection<T>({
                 itemRefs.current[idx] = el;
               }}
               className={`p-3 rounded-lg cursor-pointer transition-all duration-200 hover:scale-[1.01] ${
-                isSelected ? "ring-2 ring-secondary" : ""
+                isSelected ? "ring-1" : ""
               }`}
               style={{
                 background: isSelected
-                  ? theme.colors.accent
+                  ? theme.colors.accent+'66'
                   : theme.colors.surface,
                 border: `1px solid ${theme.colors.accent}`,
-                color: isSelected ? theme.colors.surface : theme.colors.primary,
+                color: theme.colors.primary,
               }}
               onClick={() => console.log("Navigate to:", item)}
             >
