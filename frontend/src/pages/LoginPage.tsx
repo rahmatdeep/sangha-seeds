@@ -2,7 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { theme } from "../theme";
-import { FaSeedling, FaEnvelope, FaLock } from "react-icons/fa";
+import { FaSeedling, FaEnvelope, FaLock, FaSpinner } from "react-icons/fa";
 import { getUser, login } from "../api";
 
 export default function Auth() {
@@ -346,7 +346,9 @@ export default function Auth() {
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <span className="animate-spin">⏳</span>
+                    <span className="animate-spin">
+                      <FaSpinner />
+                    </span>
                     Logging in...
                   </span>
                 ) : (
