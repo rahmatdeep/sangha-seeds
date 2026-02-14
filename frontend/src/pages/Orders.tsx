@@ -143,7 +143,7 @@ export default function Orders() {
               </span>
             )}
           </button>
-          {role === "Administrator" && (
+          {role === "Administrator" || role === "Manager" && (
             <button
               className="px-4 py-2 rounded-lg font-semibold transition-all hover:opacity-90 active:scale-95 flex items-center gap-1.5 whitespace-nowrap"
               style={{

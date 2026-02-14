@@ -28,7 +28,7 @@ export default function OrderForm() {
   const role = user.role;
 
   useEffect(() => {
-    if (role !== "Administrator") navigate("/orders");
+    if (role !== "Administrator" && role !== "Manager") navigate("/orders");
   }, [role, navigate]);
 
   const location = useLocation();
