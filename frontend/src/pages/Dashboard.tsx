@@ -24,13 +24,16 @@ function getRangeDates(range: string, customFrom?: string, customTo?: string) {
       to = new Date(now);
       to.setHours(23, 59, 59, 999);
       break;
-    case "week":
+    case "week": {
       from = new Date(now);
-      from.setDate(now.getDate() - now.getDay());
+      const day = now.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      from.setDate(now.getDate() + diff);
       from.setHours(0, 0, 0, 0);
       to = new Date(now);
       to.setHours(23, 59, 59, 999);
       break;
+    }
     case "month":
       from = new Date(now.getFullYear(), now.getMonth(), 1);
       to = new Date(now);
@@ -87,7 +90,7 @@ function getRangeDates(range: string, customFrom?: string, customTo?: string) {
 function getDateRangeDisplay(
   range: string,
   customFrom?: string,
-  customTo?: string
+  customTo?: string,
 ) {
   const now = new Date();
 
@@ -100,7 +103,9 @@ function getDateRangeDisplay(
       });
     case "week": {
       const weekStart = new Date(now);
-      weekStart.setDate(now.getDate() - now.getDay());
+      const day = now.getDay();
+      const diff = day === 0 ? -6 : 1 - day;
+      weekStart.setDate(now.getDate() + diff);
       return `${weekStart.toLocaleDateString("en-IN", {
         month: "short",
         day: "numeric",
@@ -180,7 +185,7 @@ export default function Dashboard() {
       const { createdFrom, createdTo } = getRangeDates(
         range,
         customFrom,
-        customTo
+        customTo,
       );
 
       try {
