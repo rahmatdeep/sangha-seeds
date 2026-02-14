@@ -237,6 +237,7 @@ export const UserQuerySchema = PaginationSchema.extend({
 
 // Warehouse Query Parameters
 export const WarehouseQuerySchema = PaginationSchema.extend({
+  id: z.string().uuid().optional(),
   location: z.string().optional(),
   search: z.string().optional(),
   hasCapacity: z.enum(["true", "false"]).optional(),

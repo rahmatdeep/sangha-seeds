@@ -71,6 +71,7 @@ router.get("/", authmiddleware, async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid query parameters" });
     }
     const {
+      id,
       location,
       search,
       hasCapacity,
@@ -81,6 +82,10 @@ router.get("/", authmiddleware, async (req: Request, res: Response) => {
     } = validatedQuery.data;
 
     const whereClause: any = {};
+
+    if (id) {
+      whereClause.id = id;
+    }
 
     if (location) {
       whereClause.location = { contains: location, mode: "insensitive" };
