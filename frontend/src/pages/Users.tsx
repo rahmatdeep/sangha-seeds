@@ -103,7 +103,7 @@ export default function Users() {
               className="relative px-3 py-2 rounded-lg font-semibold flex items-center gap-1.5 transition-all hover:opacity-90 cursor-pointer"
               style={{
                 backgroundColor: theme.colors.accent,
-                color: theme.colors.primary,
+                color: theme.colors.surface,
                 borderRadius: theme.borderRadius.lg,
               }}
               onClick={() => setShowFilter(true)}
